@@ -1,199 +1,318 @@
-import React, { useState } from "react";
-import { Calendar, List, Plus, Copy, X } from "lucide-react";
-
-const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
-const defaultHours = [{ start: "9:00am", end: "5:00pm" }];
+import { useState } from "react";
+import { Clock, Calendar, X, Copy, Info, Plus } from "lucide-react";
 
 export default function Availability() {
-  const [availability, setAvailability] = useState(
-    daysOfWeek.map((day, index) => ({
-      day,
-      hours:
-        index === 0 || index === 6
-          ? [] // Sunday and Saturday unavailable
-          : index === 1
-          ? [
-              { start: "9:00am", end: "5:00pm" },
-              { start: "6:00pm", end: "7:00pm" },
-              { start: "8:00pm", end: "9:00pm" },
-            ]
-          : defaultHours,
+  const days = [
+    { id: 1, short: "S", full: "Sunday" },
+    { id: 2, short: "M", full: "Monday" },
+    { id: 3, short: "T", full: "Tuesday" },
+    { id: 4, short: "W", full: "Wednesday" },
+    { id: 5, short: "T", full: "Thursday" },
+    { id: 6, short: "F", full: "Friday" },
+    { id: 7, short: "S", full: "Saturday" },
+  ];
+
+  const timeOptions = [
+    "9:00am",
+    "10:00am",
+    "11:00am",
+    "12:00pm",
+    "1:00pm",
+    "2:00pm",
+    "3:00pm",
+    "4:00pm",
+    "5:00pm",
+    "6:00pm",
+    "7:00pm",
+    "8:00pm",
+    "9:00pm",
+  ];
+
+  const [activeTab, setActiveTab] = useState("weekly");
+  const [weeklyHours, setWeeklyHours] = useState(
+    days.map((day) => ({
+      dayId: day.id,
+      available: day.id !== 7, // Sunday is unavailable by default
+      timeSlots: [{ id: 1, startTime: "9:00am", endTime: "5:00pm" }],
     }))
   );
 
-  const [viewMode, setViewMode] = useState("list"); // "list" or "calendar"
-
-  const handleAddHour = (dayIndex) => {
-    const updated = [...availability];
-    updated[dayIndex].hours.push({ start: "", end: "" });
-    setAvailability(updated);
+  const toggleAvailability = (dayId) => {
+    setWeeklyHours(
+      weeklyHours.map((day) => {
+        if (day.dayId === dayId) {
+          return {
+            ...day,
+            available: !day.available,
+            timeSlots: day.available
+              ? []
+              : [{ id: 1, startTime: "9:00am", endTime: "5:00pm" }],
+          };
+        }
+        return day;
+      })
+    );
   };
 
-  const handleRemoveHour = (dayIndex, hourIndex) => {
-    const updated = [...availability];
-    updated[dayIndex].hours.splice(hourIndex, 1);
-    setAvailability(updated);
+  const updateTime = (dayId, slotId, field, value) => {
+    setWeeklyHours(
+      weeklyHours.map((day) => {
+        if (day.dayId === dayId) {
+          return {
+            ...day,
+            timeSlots: day.timeSlots.map((slot) =>
+              slot.id === slotId ? { ...slot, [field]: value } : slot
+            ),
+          };
+        }
+        return day;
+      })
+    );
   };
 
-  const handleChange = (dayIndex, hourIndex, field, value) => {
-    const updated = [...availability];
-    updated[dayIndex].hours[hourIndex][field] = value;
-    setAvailability(updated);
+  const addTimeSlot = (dayId) => {
+    setWeeklyHours(
+      weeklyHours.map((day) => {
+        if (day.dayId === dayId) {
+          const lastSlot = day.timeSlots[day.timeSlots.length - 1];
+          const newSlotId =
+            day.timeSlots.length > 0
+              ? Math.max(...day.timeSlots.map((slot) => slot.id)) + 1
+              : 1;
+
+          return {
+            ...day,
+            timeSlots: [
+              ...day.timeSlots,
+              {
+                id: newSlotId,
+                startTime: lastSlot ? lastSlot.endTime : "6:00pm",
+                endTime: getNextTimeOption(
+                  lastSlot ? lastSlot.endTime : "6:00pm"
+                ),
+              },
+            ],
+          };
+        }
+        return day;
+      })
+    );
   };
 
-  const addAvailability = (dayIndex) => {
-    const updated = [...availability];
-    if (updated[dayIndex].hours.length === 0) {
-      updated[dayIndex].hours.push({ start: "9:00am", end: "5:00pm" });
-    } else {
-      handleAddHour(dayIndex);
+  const getNextTimeOption = (time) => {
+    const index = timeOptions.indexOf(time);
+    if (index !== -1 && index < timeOptions.length - 1) {
+      return timeOptions[index + 1];
     }
-    setAvailability(updated);
+    return timeOptions[timeOptions.length - 1];
+  };
+
+  const removeTimeSlot = (dayId, slotId) => {
+    setWeeklyHours(
+      weeklyHours.map((day) => {
+        if (day.dayId === dayId) {
+          // If this is the last time slot, make the day unavailable
+          if (day.timeSlots.length === 1) {
+            return { ...day, available: false, timeSlots: [] };
+          }
+
+          return {
+            ...day,
+            timeSlots: day.timeSlots.filter((slot) => slot.id !== slotId),
+          };
+        }
+        return day;
+      })
+    );
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto mt-16 bg-white rounded-lg border border-gray-200 shadow-sm">
-      <div className="mb-6">
-        <h2 className="text-sm text-gray-500">Schedule</h2>
-        <div className="flex justify-between items-center">
-          <div className="text-[#A4CC00] font-semibold text-lg">
-            Working hours
-          </div>
-          <div className="flex items-center gap-2">
+    <div className="max-w-3xl p-6">
+      <h1 className="text-2xl font-medium mb-6">Availability</h1>
+
+      <div className="rounded-lg p-8 border-2 border-gray-200 bg-white shadow-sm">
+        <div className=" pb-4 border-b border-gray-200">
+          <h2 className="text-md font-medium text-gray-600">Schedule</h2>
+        </div>
+
+        <div className="flex  items-center justify-between pb-4 ">
+          {/* Tabs */}
+          <div className="flex space-x-6">
             <button
-              className={`flex items-center gap-1 px-4 py-1.5 border border-gray-300 rounded-md shadow-sm ${
-                viewMode === "list" ? "bg-gray-100" : "bg-white"
+              className={`flex items-center py-4 px-1  ${
+                activeTab === "weekly"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500"
               }`}
-              onClick={() => setViewMode("list")}
+              onClick={() => setActiveTab("weekly")}
             >
-              <List size={16} /> List
-            </button>
-            <button
-              className={`flex items-center gap-1 px-4 py-1.5 border border-gray-300 rounded-md shadow-sm ${
-                viewMode === "calendar" ? "bg-gray-100" : "bg-white"
-              }`}
-              onClick={() => setViewMode("calendar")}
-            >
-              <Calendar size={16} /> Calendar
+              <Clock size={18} className="mr-2" />
+              <span className="text-sm font-medium">Weekly hours</span>
             </button>
           </div>
-        </div>
-        <p className="text-sm text-black mt-1 cursor-pointer">
-          Active on:
-          <span className="text-[#A4CC00] font-normal"> 2 event types</span>
-        </p>
-      </div>
 
-      <div className="flex justify-between border-t pt-4">
-        <div>
-          <h3 className="text-base font-semibold">Weekly hours</h3>
-          <p className="text-sm font-light text-gray-500">
-            Set when you are typically available for meetings
-          </p>
-        </div>
-        {/* <div className="text-right">
-          <h3 className="text-base font-semibold flex items-center justify-end gap-2">
-            <Calendar size={16} /> Date-specific hours
-          </h3>
-          <p className="text-sm text-gray-500">
-            Adjust hours for specific days
-          </p>
-        </div> */}
-      </div>
+          <button
+            className={`flex items-center py-4 px-1  ${
+              activeTab === "date-specific"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500"
+            }`}
+            onClick={() => setActiveTab("date-specific")}
+          >
+            <Calendar size={18} className="mr-2" />
+            <span className="text-sm font-medium">Date-specific hours</span>
+          </button>
 
-      {viewMode === "list" && (
-        <div className="mt-6">
-          {availability.map((dayItem, dayIndex) => (
-            <div key={dayIndex} className="flex items-start gap-4 mb-4">
-              <div
-                className={`w-8 h-8 rounded-full ${
-                  dayItem.hours.length === 0 ? "bg-gray-200" : "bg-[#A4CC00]"
-                } text-white flex items-center justify-center`}
-              >
-                {dayItem.day}
-              </div>
-              <div className="flex flex-col gap-2 flex-grow">
-                {dayItem.hours.length === 0 ? (
-                  <div className="text-gray-500 flex items-center gap-2">
-                    Unavailable
-                    <button
-                      onClick={() => addAvailability(dayIndex)}
-                      className="text-blue-600 ml-2 flex items-center"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  dayItem.hours.map((hour, hourIndex) => (
-                    <div key={hourIndex} className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        className="bg-gray-100 rounded px-2 py-1 w-24"
-                        value={hour.start}
-                        onChange={(e) =>
-                          handleChange(
-                            dayIndex,
-                            hourIndex,
-                            "start",
-                            e.target.value
-                          )
-                        }
-                      />
-                      <span>-</span>
-                      <input
-                        type="text"
-                        className="bg-gray-100 rounded px-2 py-1 w-24"
-                        value={hour.end}
-                        onChange={(e) =>
-                          handleChange(
-                            dayIndex,
-                            hourIndex,
-                            "end",
-                            e.target.value
-                          )
-                        }
-                      />
-                      <button
-                        onClick={() => handleRemoveHour(dayIndex, hourIndex)}
-                        className="text-gray-600 hover:text-gray-800"
-                      >
-                        <X size={16} />
-                      </button>
-                      {hourIndex === dayItem.hours.length - 1 && (
-                        <>
-                          <button
-                            onClick={() => handleAddHour(dayIndex)}
-                            className="text-gray-600 hover:text-gray-800"
-                            title="Add another time slot"
-                          >
-                            <Plus size={16} />
-                          </button>
-                          <button
-                            className="text-gray-600 hover:text-gray-800"
-                            title="Copy time slot"
-                          >
-                            <Copy size={16} />
-                          </button>
-                        </>
-                      )}
+          {/* + Hours Button */}
+          <button className="flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-2xl">
+            <span className="mr-1">+</span> Hours
+          </button>
+        </div>
+
+        <div className="pt-4">
+          {activeTab === "weekly" && (
+            <div>
+              <p className="text-xs text-gray-500 mb-4">
+                Set when you are typically available for meetings
+              </p>
+
+              {weeklyHours.map((day) => (
+                <div key={day.dayId} className="mb-4">
+                  <div className="flex items-center mb-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white mr-4">
+                      {days.find((d) => d.id === day.dayId).short}
                     </div>
-                  ))
-                )}
+
+                    {day.available ? (
+                      <>
+                        {day.timeSlots.map((slot, index) => (
+                          <div key={slot.id} className="flex items-center mb-2">
+                            {index > 0 && <div className="w-8 mr-4"></div>}
+                            <div
+                              className={
+                                index > 0
+                                  ? "flex items-center ml-12"
+                                  : "flex items-center"
+                              }
+                            >
+                              <select
+                                value={slot.startTime}
+                                onChange={(e) =>
+                                  updateTime(
+                                    day.dayId,
+                                    slot.id,
+                                    "startTime",
+                                    e.target.value
+                                  )
+                                }
+                                className="bg-gray-100 text-gray-700 px-3 py-2 rounded-md mr-3"
+                              >
+                                {timeOptions.map((time) => (
+                                  <option key={time} value={time}>
+                                    {time}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <span className="text-gray-500 mx-2">-</span>
+
+                              <select
+                                value={slot.endTime}
+                                onChange={(e) =>
+                                  updateTime(
+                                    day.dayId,
+                                    slot.id,
+                                    "endTime",
+                                    e.target.value
+                                  )
+                                }
+                                className="bg-gray-100 text-gray-700 px-3 py-2 rounded-md mr-3"
+                              >
+                                {timeOptions.map((time) => (
+                                  <option key={time} value={time}>
+                                    {time}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <button
+                                onClick={() =>
+                                  removeTimeSlot(day.dayId, slot.id)
+                                }
+                                className="p-2 text-gray-400 hover:text-gray-600"
+                              >
+                                <X size={18} />
+                              </button>
+
+                              {index === day.timeSlots.length - 1 && (
+                                <>
+                                  <button
+                                    onClick={() => addTimeSlot(day.dayId)}
+                                    className="p-2 text-gray-400 hover:text-gray-600"
+                                  >
+                                    <Plus size={18} />
+                                  </button>
+
+                                  <button className="p-2 text-gray-400 hover:text-gray-600">
+                                    <Copy size={18} />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="flex items-center">
+                        <span className="text-gray-500 mr-4">Unavailable</span>
+                        <button
+                          onClick={() => toggleAvailability(day.dayId)}
+                          className="p-2 text-gray-400 hover:text-gray-600"
+                        >
+                          <Info size={18} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <div className="mt-6">
+                <div className="flex items-center text-sm text-blue-600">
+                  <span className="font-medium cursor-pointer">
+                    India Standard Time
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {viewMode === "calendar" && (
-        <div className="mt-6 p-4 border border-gray-200 rounded-lg">
-          <p className="text-center text-gray-500">
-            Calendar view would be displayed here
-          </p>
+          {activeTab === "date-specific" && (
+            <div>
+              <p className="text-xs text-gray-500 mb-4">
+                Adjust hours for specific days
+              </p>
+              <p className="text-gray-500 text-sm">
+                Configure date-specific availability settings
+              </p>
+            </div>
+          )}
         </div>
-      )}
-
-      <div className="mt-6 text-sm text-blue-700">India Standard Time</div>
+      </div>
     </div>
   );
 }

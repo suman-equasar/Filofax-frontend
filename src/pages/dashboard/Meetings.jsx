@@ -1,165 +1,237 @@
 import { useState } from "react";
-import {
-  ChevronDown,
-  Info,
-  ArrowDown,
-  Filter,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Calendar, X } from "lucide-react";
 
 export default function Meetings() {
   const [activeTab, setActiveTab] = useState("Upcoming");
-  const [showBuffers, setShowBuffers] = useState(false);
-  const [calendarSelected, setCalendarSelected] = useState("My Calendly");
+  const [expandedEventIds, setExpandedEventIds] = useState(["event1"]);
 
-  const meetings = [
+  const toggleEventDetails = (eventId) => {
+    setExpandedEventIds((prev) =>
+      prev.includes(eventId)
+        ? prev.filter((id) => id !== eventId)
+        : [...prev, eventId]
+    );
+  };
+
+  // Mock data for meetings
+  const events = [
     {
-      id: 1,
+      id: "event1",
       date: "Friday, 16 May 2025",
-      time: "10:30 am – 11 am",
-      name: "Subhash",
-      eventType: "New Meeting",
-      hostCount: 1,
-      nonHostCount: 0,
+      isToday: true,
+      time: "3PM - 5:30PM",
+      name: "Event Name",
+      type: "One-on-One meeting",
+      hosts: { host: 1, nonHosts: 0 },
+      email: "webstock44@gmail.com",
+      location: "This is a Google Meet web conference",
+      joinNowLink: "#",
+      timeZone: "PDT Standard Time",
+      questions:
+        "Please share anything that will help prepare for our meeting.",
+      meetingHost: "Host will attend this meeting",
+      hostInitial: "A",
+      createdDate: "Created 16 May 2025",
     },
     {
-      id: 2,
+      id: "event2",
       date: "Friday, 23 May 2025",
-      time: "1:30 pm – 2:30 pm",
-      name: "Subhash",
-      eventType: "New Meeting",
-      hostCount: 1,
-      nonHostCount: 0,
+      isToday: false,
+      time: "3PM - 5:30PM",
+      name: "Event Name",
+      type: "One-on-One meeting",
+      hosts: { host: 1, nonHosts: 0 },
+    },
+    {
+      id: "event3",
+      date: "Friday, 23 May 2025",
+      isToday: false,
+      time: "3PM - 5:30PM",
+      name: "Event Name",
+      type: "One-on-One meeting",
+      hosts: { host: 1, nonHosts: 0 },
     },
   ];
 
-  // Group meetings by date
-  const meetingsByDate = meetings.reduce((acc, meeting) => {
-    if (!acc[meeting.date]) {
-      acc[meeting.date] = [];
+  // Group events by date
+  const eventsByDate = events.reduce((acc, event) => {
+    if (!acc[event.date]) {
+      acc[event.date] = [];
     }
-    acc[meeting.date].push(meeting);
+    acc[event.date].push(event);
     return acc;
   }, {});
 
   return (
-    <div className="w-full">
-      <div className="flex items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Meetings</h1>
-        <Info className="ml-2 text-gray-500 w-5 h-5" />
+    <div className=" max-w-7xl p-4 ">
+      <div className="flex justify-between items-center mt-11 mb-12 ">
+        <h1 className="text-2xl text-[#000000] font-normal">Meetings</h1>
+        <span className="text-gray-500">Displaying 3 of 3 Events</span>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative">
-          <button
-            className="flex items-center px-4 py-2 border border-gray-300 rounded-md bg-white"
-            onClick={() =>
-              setCalendarSelected((prev) =>
-                prev === "My Calendly" ? "Other Calendar" : "My Calendly"
-              )
-            }
-          >
-            <span className="mr-2">{calendarSelected}</span>
-            <ChevronDown className="w-4 h-4 text-gray-500" />
-          </button>
-        </div>
-
-        <div className="flex items-center">
-          <span className="mr-2 text-gray-700">Show buffers</span>
-          <Info className="mr-2 text-gray-500 w-4 h-4" />
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={showBuffers}
-              onChange={() => setShowBuffers(!showBuffers)}
-            />
-            <div
-              className={`w-11 h-6 rounded-full peer ${
-                showBuffers ? "bg-blue-600" : "bg-gray-200"
-              } 
-              peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 
-              peer-checked:after:translate-x-full peer-checked:after:border-white 
-              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-              after:bg-white after:border-gray-300 after:border after:rounded-full 
-              after:h-5 after:w-5 after:transition-all`}
-            ></div>
-          </label>
-          <span className="ml-4 text-gray-700">Displaying 2 of 2 Events</span>
-        </div>
-      </div>
-
-      <div className="border rounded-lg overflow-hidden bg-white">
-        <div className="flex justify-between items-center p-4 border-b">
+      {/* Tabs */}
+      <div className="border-b-2 border-[#0F575C1A]">
+        <div className="flex justify-between items-center">
+          {/* Tabs */}
           <div className="flex">
             {["Upcoming", "Pending", "Past"].map((tab) => (
               <button
                 key={tab}
-                className={`px-4 py-2 ${
-                  activeTab === tab
-                    ? "text-blue-600 border-b-2 border-blue-600 font-medium"
-                    : "text-gray-500"
+                className={`px-8 py-3 font-normal text-sm ${
+                  tab === activeTab
+                    ? "border-b-2 border-[#A4CC02] text-[#000000]"
+                    : "text-[#000000]"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
               </button>
             ))}
-            <button className="px-4 py-2 text-gray-500 flex items-center">
-              Date Range
-              <ChevronDown className="ml-1 w-4 h-4" />
-            </button>
           </div>
-          <div className="flex">
-            <button className="mr-2 px-4 py-2 border border-gray-300 rounded-md bg-white flex items-center">
-              <ArrowDown className="mr-1 w-4 h-4" />
-              Export
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-md bg-white flex items-center">
-              <Filter className="mr-1 w-4 h-4" />
-              Filter
-              <ChevronDown className="ml-1 w-4 h-4" />
-            </button>
-          </div>
-        </div>
 
-        <div>
-          {Object.keys(meetingsByDate).map((date) => (
-            <div key={date}>
-              <div className="px-6 py-4 bg-gray-50 border-b text-gray-700">
-                {date}
+          {/* Export button */}
+          <button className="flex items-center px-4 py-1 border border-gray-300 rounded text-sm">
+            <Calendar className="w-4 h-4 mr-2" />
+            Export
+          </button>
+        </div>
+      </div>
+
+      {/* Event listings */}
+      <div className="mt-8 border-2 border-[#0F575C1A] rounded-lg">
+        {Object.entries(eventsByDate).map(([date, dateEvents]) => (
+          <div key={date} className="mb-4">
+            <div
+              className={`p-3 ${
+                dateEvents[0].isToday ? "bg-[#0F575C2B]" : "bg-[#0F575C2B]"
+              }`}
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-light">{date}</span>
+                {dateEvents[0].isToday && (
+                  <span className="font-medium">TODAY</span>
+                )}
               </div>
-
-              {meetingsByDate[date].map((meeting) => (
-                <div
-                  key={meeting.id}
-                  className="px-6 py-4 border-b flex items-center"
-                >
-                  <div className="w-10 h-10 rounded-full bg-purple-600 mr-6 flex-shrink-0"></div>
-                  <div className="text-gray-700 w-40">{meeting.time}</div>
-                  <div className="flex-1">
-                    <div className="font-medium">{meeting.name}</div>
-                    <div className="text-sm text-gray-500">
-                      Event type{" "}
-                      <span className="font-medium">{meeting.eventType}</span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500 mr-6">
-                    {meeting.hostCount} host | {meeting.nonHostCount} non-hosts
-                  </div>
-                  <button className="flex items-center text-gray-500">
-                    Details
-                    <ChevronRight className="ml-1 w-4 h-4" />
-                  </button>
-                </div>
-              ))}
             </div>
-          ))}
 
-          <div className="px-6 py-4 text-center text-gray-500">
-            You've reached the end of the list
+            {dateEvents.map((event) => (
+              <div key={event.id} className="border-b">
+                <div className="p-8 flex">
+                  {/* Time column */}
+                  <div className="w-1/6">
+                    <div className="text-gray-700">{event.time}</div>
+
+                    {expandedEventIds.includes(event.id) && (
+                      <div className="mt-10 space-y-2">
+                        <button className="flex items-center justify-center  px-6 py-2 border-2 border-gray-400 rounded-2xl text-sm">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          Reschedule
+                        </button>
+                        <button className="flex items-center justify-center  px-10 py-2 border-2 border-gray-400 rounded-2xl text-sm">
+                          <X className="w-4 h-4 mr-1" />
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {/* Add gap between time and event details */}
+                  <div className="w-1/12"></div> {/* Empty div for spacing */}
+                  {/* Event details */}
+                  <div className="w-4/6 ">
+                    <div>
+                      <div className="text-sm text-black">{event.name}</div>
+                      <div className="text-gray-600 ">
+                        Event Type: {event.type}
+                      </div>
+                    </div>
+
+                    {expandedEventIds.includes(event.id) && (
+                      <div className="mt-4 space-y-4">
+                        <div>
+                          <div className=" text-sm text-black">EMAIL</div>
+                          <div className="text-blue-500">{event.email}</div>
+                        </div>
+
+                        <div>
+                          <div className=" text-sm text-black">LOCATION</div>
+                          <div className="text-gray-500 text-xs">
+                            {event.location}{" "}
+                            <a
+                              href={event.joinNowLink}
+                              className="text-blue-500"
+                            >
+                              Join now
+                            </a>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-sm text-black">
+                            INVITE TIME ZONE
+                          </div>
+                          <div className="text-gray-500 text-xs">
+                            {event.timeZone}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-sm text-black">QUESTIONS</div>
+                          <div className="text-gray-500 text-xs">
+                            {event.questions}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className=" text-sm text-black">
+                            MEETING HOST
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {event.meetingHost}
+                          </div>
+                          <div className="mt-2 flex items-center">
+                            <span className="w-8 h-8 rounded-full bg-gray-200  text-gray-500 flex items-center justify-center">
+                              {event.hostInitial}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <a href="#" className="text-blue-500 text-sm">
+                            Add meeting notes
+                          </a>
+                          <div className="text-xs text-gray-500">
+                            (Only the host will see these)
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-gray-500">
+                          {event.createdDate}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Hosts info and details button */}
+                  <div className="w-1/6 flex flex-col items-end ">
+                    <div className="text-sm text-gray-600">
+                      {event.hosts.host} host | {event.hosts.nonHosts} non-hosts
+                    </div>
+                    <button
+                      className="mt-1 text-sm text-gray-600 flex items-center"
+                      onClick={() => toggleEventDetails(event.id)}
+                    >
+                      Details
+                      {expandedEventIds.includes(event.id) ? (
+                        <ChevronUp className="w-4 h-4 ml-1" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 ml-1" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
