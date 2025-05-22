@@ -6,6 +6,7 @@ import validator from "validator";
 import { initiateGoogleSignUp } from "../../services/auth/googleAuth";
 import axios from "axios";
 import { setAuthToken } from "../../utils/auth"; // Import the updated auth utility
+import { useDispatch } from "react-redux";
 
 // Constants
 const PASSWORD_REQUIREMENTS = {
@@ -21,6 +22,7 @@ const signupUrl = import.meta.env.VITE_BASE_AUTH_URL;
 
 export default function Signup() {
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // new
 
   const [formData, setFormData] = useState({
     email: "",
@@ -119,6 +121,7 @@ export default function Signup() {
 
       console.log("Signup successful:", response.data);
 
+      const { token, refreshToken } = response.data;
       // Store the token from the response
       if (response.data?.token) {
         const success = setAuthToken(response.data.token);
