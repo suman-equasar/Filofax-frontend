@@ -5,15 +5,15 @@ import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your u
 
 export default function UserProfile() {
   // Extract token from query string and store it properly
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const token = params.get("token");
+  // useEffect(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   const token = params.get("token");
 
-    if (token) {
-      setAuthToken(token); // Use the unified auth method
-      navigate("/", { replace: true }); // Clean URL
-    }
-  }, [location, navigate]);
+  //   if (token) {
+  //     setAuthToken(token); // Use the unified auth method
+  //     navigate("/", { replace: true }); // Clean URL
+  //   }
+  // }, [location, navigate]);
 
   const [currentTime, setCurrentTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);

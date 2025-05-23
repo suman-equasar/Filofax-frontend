@@ -23,61 +23,61 @@ const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
 
   const toggleOptions = () => setShowOptions(!showOptions);
 
-  const handleGoogleAuth = async () => {
-    try {
-      setLoading(true);
-      const url = `${import.meta.env.VITE_BASE_AUTH_URL}/google`;
+  // const handleGoogleAuth = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const url = `${import.meta.env.VITE_BASE_AUTH_URL}/google`;
 
-      const res = await fetch(url, {
-        method: "GET",
-        credentials: "include",
-      });
+  //     const res = await fetch(url, {
+  //       method: "GET",
+  //       credentials: "include",
+  //     });
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      if (data?.alreadyLinked) {
-        // User already linked Google Calendar
-        return true;
-      } else if (data?.authUrl) {
-        // Begin OAuth flow
-        const popup = window.open(
-          data.authUrl,
-          "_blank",
-          "width=500,height=600"
-        );
+  //     if (data?.alreadyLinked) {
+  //       // User already linked Google Calendar
+  //       return true;
+  //     } else if (data?.authUrl) {
+  //       // Begin OAuth flow
+  //       const popup = window.open(
+  //         data.authUrl,
+  //         "_blank",
+  //         "width=500,height=600"
+  //       );
 
-        if (popup) {
-          const interval = setInterval(() => {
-            if (popup.closed) {
-              clearInterval(interval);
-              window.location.reload(); // Reload or refetch status
-            }
-          }, 1000);
-        }
+  //       if (popup) {
+  //         const interval = setInterval(() => {
+  //           if (popup.closed) {
+  //             clearInterval(interval);
+  //             window.location.reload(); // Reload or refetch status
+  //           }
+  //         }, 1000);
+  //       }
 
-        return false; // Don’t proceed with selecting location yet
-      } else {
-        console.error("Unexpected response:", data);
-        return false;
-      }
-    } catch (err) {
-      console.error("Error during Google auth:", err);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       return false; // Don’t proceed with selecting location yet
+  //     } else {
+  //       console.error("Unexpected response:", data);
+  //       return false;
+  //     }
+  //   } catch (err) {
+  //     console.error("Error during Google auth:", err);
+  //     return false;
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  const handleOptionClick = async (option) => {
-    if (option.id === "google_meet") {
-      const linked = await handleGoogleAuth();
-      if (!linked) return;
-    }
+  // const handleOptionClick = async (option) => {
+  //   if (option.id === "google_meet") {
+  //     const linked = await handleGoogleAuth();
+  //     if (!linked) return;
+  //   }
 
-    setLocation(option);
-    if (onLocationChange) onLocationChange(option);
-    setShowOptions(false);
-  };
+  //   setLocation(option);
+  //   if (onLocationChange) onLocationChange(option);
+  //   setShowOptions(false);
+  // };
 
   return (
     <div className="w-full">
@@ -110,7 +110,7 @@ const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
                       ? "border-lime-500 bg-lime-50"
                       : "border-lime-200 hover:bg-lime-50"
                   }`}
-                  onClick={() => handleOptionClick(option)}
+                  onClick={() => console.log("Option clicked")}
                   disabled={loading}
                 >
                   {option.icon}
