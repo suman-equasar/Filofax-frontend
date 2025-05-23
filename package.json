@@ -19,7 +19,6 @@
     "js-cookie": "^3.0.5",
     "lucide": "^0.503.0",
     "lucide-react": "^0.503.0",
-    "ngrok": "^5.0.0-beta.2",
     "prop-types": "^15.8.1",
     "react": "^19.1.0",
     "react-calendar": "^5.1.0",

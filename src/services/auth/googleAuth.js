@@ -8,9 +8,6 @@ export const initiateGoogleSignUp = () => {
 
   // Redirect the browser to your backend Google OAuth route
   window.location.href = `${baseURL}/google`;
-
-  // This function doesn't return anything directly as it redirects the browser
-  // The token handling happens when Google redirects back to your app
 };
 
 export default {

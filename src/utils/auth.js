@@ -15,6 +15,7 @@ export const isAuthenticated = () => {
 };
 
 export const setAuthToken = (token) => {
+  console.log("Setting auth token...");
   if (token) {
     // Store token in both places to ensure compatibility
     Cookies.set("token", token, { path: "/" });

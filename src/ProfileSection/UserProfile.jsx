@@ -4,6 +4,17 @@ import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
 import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
 
 export default function UserProfile() {
+  // Extract token from query string and store it properly
+  // useEffect(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   const token = params.get("token");
+
+  //   if (token) {
+  //     setAuthToken(token); // Use the unified auth method
+  //     navigate("/", { replace: true }); // Clean URL
+  //   }
+  // }, [location, navigate]);
+
   const [currentTime, setCurrentTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState({

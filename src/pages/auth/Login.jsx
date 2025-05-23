@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "../../redux/userSlice";
 import { setAuthToken } from "../../utils/auth"; // Import the auth utility
+import { initiateGoogleSignUp } from "../../services/auth/googleAuth";
 
 // Constants
 const PASSWORD_REQUIREMENTS = {
@@ -103,6 +104,11 @@ export default function Login() {
     }
   };
 
+  // Google sign-in handler
+  const handleGoogleSignIn = () => {
+    initiateGoogleSignUp(); //this will redirect to the Google auth page
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
       <div className="w-full max-w-md p-8 rounded-2xl border border-[#A4CC00] shadow-[4px_4px_0px_0px_rgba(164,204,0,0.51)]">
@@ -120,7 +126,7 @@ export default function Login() {
           <button
             type="button"
             className="flex items-center justify-center w-full py-3 px-4 mb-6 border-[1.5px] border-[#121212e0] rounded-lg bg-white hover:bg-gray-50"
-            onClick={() => console.log("Google sign-in clicked")}
+            onClick={handleGoogleSignIn}
           >
             <FcGoogle size={18} className="mr-2" />
             <span className="text-sm font-semibold text-[#121212]">
@@ -131,13 +137,13 @@ export default function Login() {
           <button
             type="button"
             className="flex items-center justify-center w-full py-3 px-4 mb-6 border-[1.5px] border-[#121212e0] rounded-lg bg-white hover:bg-gray-50"
-            onClick={() => console.log("Microsoft sign-in clicked")}
           >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
               alt="Microsoft logo"
               className="w-4 h-4 mr-2"
             />
+            <FcGoogle size={18} className="mr-2" />
             <span className="text-sm font-semibold text-[#121212]">
               Sign in with Microsoft
             </span>
