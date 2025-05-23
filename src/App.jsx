@@ -12,51 +12,50 @@ import GoogleCallback from "./pages/auth/GoogleCallback";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+    // <BrowserRouter>
+    //   <Routes>
+    //     {/* Public Routes */}
+    //     <Route path="/" element={<Login />} />
+    //     <Route path="/signup" element={<Signup />} />
 
-        {/* Google OAuth Callback Route */}
-        <Route path="/google/callback" element={<GoogleCallback />} />
+    //     {/* Dashboard Routes with Layout */}
+    //     <Route
+    //       path="/dashboard"
+    //       element={
+    //         <ProtectedRoute>
+    //           <DashboardLayout />
+    //         </ProtectedRoute>
+    //       }
+    //     >
+    //       {/* Default redirect */}
+    //       <Route
+    //         index
+    //         element={<Navigate to="/dashboard/event-types" replace />}
+    //       />
 
-        {/* Dashboard Routes with Layout */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* Default redirect */}
-          <Route
-            index
-            element={<Navigate to="/dashboard/event-types" replace />}
-          />
+    //       {/* Child routes that will render in the outlet */}
+    //       <Route path="user-profile" element={<UserProfile />} />
+    //       <Route path="event-types" element={<EventTypes />} />
+    //       <Route path="meetings" element={<Meetings />} />
+    //       <Route path="availability" element={<Availability />} />
+    //     </Route>
 
-          {/* Child routes that will render in the outlet */}
-          <Route path="user-profile" element={<UserProfile />} />
-          <Route path="event-types" element={<EventTypes />} />
-          <Route path="meetings" element={<Meetings />} />
-          <Route path="availability" element={<Availability />} />
-        </Route>
+    //     {/* User Profile */}
+    //     <Route
+    //       path="/user-profile"
+    //       element={
+    //         <ProtectedRoute>
+    //           <UserProfile />
+    //         </ProtectedRoute>
+    //       }
+    //     />
 
-        {/* User Profile */}
-        <Route
-          path="/user-profile"
-          element={
-            <ProtectedRoute>
-              <UserProfile />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Catch-all route for 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    //     {/* Catch-all route for 404 */}
+    //     <Route path="*" element={<Navigate to="/" replace />} />
+    //   </Routes>
+    // </BrowserRouter>
+    // );
+    <Booking />
   );
 }
 
