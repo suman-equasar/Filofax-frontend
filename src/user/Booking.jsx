@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css"; // default styles
+import "react-calendar/dist/Calendar.css"; // Required for layout, we'll override styles
 import { Clock, Phone } from "lucide-react";
 import logo from "../assets/logo.svg";
 import Time from "./Time";
@@ -18,19 +18,18 @@ const Booking = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="relative w-full max-w-5xl">
-        {/* Main Panels */}
         <div
           className={`bg-white rounded-lg shadow-lg overflow-hidden w-full flex flex-col md:flex-row transition-transform duration-300 ${
             drawerOpen ? "md:-translate-x-40" : ""
           }`}
         >
           {/* Left Panel */}
-          <div className="w-full md:w-1/2 p-6 md:p-8 bg-white border-b md:border-b-0 md:border-r border-gray-200">
+          <div className="w-full md:w-1/2 p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
             <div className="flex items-center mb-4">
               <img src={logo} alt="logo" className="w-10 h-10" />
             </div>
             <span className="text-sm font-medium text-gray-600">ACME Inc.</span>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
               Product Demo
             </h1>
             <div className="space-y-3 mb-6">
@@ -43,33 +42,37 @@ const Booking = () => {
                 <span className="text-sm">Phone call</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500 leading-relaxed">
+            <p className="text-sm text-gray-500">
               This is an example of a meeting you would have with a potential
               customer to demonstrate your product.
             </p>
           </div>
 
           {/* Right Panel */}
-          <div className="w-full md:w-1/2 p-6 md:p-8 bg-white">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 md:mb-6">
+          <div className="w-full md:w-1/2 p-6 md:p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
               Select a Date & Time
             </h2>
 
             <div className="flex justify-center">
-              <div className="rounded-lg mb-6 w-full max-w-xs">
+              <div className="bg-white rounded-lg w-full max-w-xs custom-calendar-wrapper">
                 <Calendar
                   onClickDay={handleDateClick}
-                  tileDisabled={({ date }) =>
-                    date < new Date().setHours(0, 0, 0, 0)
-                  }
+                  tileDisabled={({ date }) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const incoming = new Date(date);
+                    incoming.setHours(0, 0, 0, 0);
+                    return incoming < today;
+                  }}
                   next2Label={null}
                   prev2Label={null}
-                  className="w-full border-0 shadow-none custom-calendar"
+                  className="react-calendar !border-none !shadow-none"
                 />
               </div>
             </div>
 
-            <div>
+            <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Time zone
               </label>
@@ -81,7 +84,6 @@ const Booking = () => {
           </div>
         </div>
 
-        {/* Time Drawer */}
         {drawerOpen && (
           <Time
             isOpen={true}

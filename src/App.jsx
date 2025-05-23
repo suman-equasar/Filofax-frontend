@@ -9,10 +9,12 @@ import Meetings from "./pages/dashboard/Meetings";
 import Availability from "./pages/dashboard/Availability";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GoogleCallback from "./pages/auth/GoogleCallback";
+import { Book } from "lucide-react";
+import Booking from "./user/Booking";
 
 function App() {
   return (
-    // <BrowserRouter>
+    //<BrowserRouter>
     //   <Routes>
     //     {/* Public Routes */}
     //     <Route path="/" element={<Login />} />
@@ -53,8 +55,7 @@ function App() {
     //     {/* Catch-all route for 404 */}
     //     <Route path="*" element={<Navigate to="/" replace />} />
     //   </Routes>
-    // </BrowserRouter>
-    // );
+    //</BrowserRouter>
     <Booking />
   );
 }

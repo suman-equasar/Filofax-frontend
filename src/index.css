@@ -1,9 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Russo+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Russo+One&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
-    font-family: 'Lexend', sans-serif;
+  font-family: "Lexend", sans-serif;
+}
+/* React Calender Css  */
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none; /* removes the dotted underline */
+  cursor: default; /* optional – gets rid of the “help” cursor */
+}
+.react-calendar__month-view__days__day--weekend {
+  color: black;
 }

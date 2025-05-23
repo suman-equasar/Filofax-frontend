@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Time = ({ isOpen, onClose, date }) => {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
   const generateTimeSlots = () => {
     const slots = [];
     let hour = 9;
@@ -33,7 +35,7 @@ const Time = ({ isOpen, onClose, date }) => {
 
   return (
     <>
-      {/* Overlay for small screens */}
+      {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden ${
           isOpen ? "block" : "hidden"
@@ -41,7 +43,7 @@ const Time = ({ isOpen, onClose, date }) => {
         onClick={onClose}
       ></div>
 
-      {/* Drawer container */}
+      {/* Drawer */}
       <div
         className={`
           fixed md:absolute top-0 right-0 h-full bg-white shadow-lg border-l z-50
@@ -71,16 +73,30 @@ const Time = ({ isOpen, onClose, date }) => {
           </button>
         </div>
 
-        {/* Scrollable Time Slots */}
+        {/* Time Slots */}
         <div className="p-4 space-y-2 overflow-y-auto h-[calc(100vh-64px)]">
           {timeSlots.map((slot, index) => (
-            <button
-              key={index}
-              className="w-full text-left border border-gray-300 active:border-blue-500 
-              rounded p-2 text-sm transition"
-            >
-              {slot}
-            </button>
+            <div key={index} className="flex items-center space-x-2">
+              <button
+                onClick={() => setSelectedIndex(index)}
+                className={`text-left border rounded p-2 text-sm transition-all duration-200 flex-1 ${
+                  selectedIndex === index
+                    ? "bg-gray-800 text-white border-gray-800 w-1/2"
+                    : "border-blue-500 text-blue-500 hover:bg-blue-100"
+                }`}
+              >
+                {slot}
+              </button>
+
+              {selectedIndex === index && (
+                <button
+                  onClick={() => alert(`Next clicked for: ${slot}`)}
+                  className="bg-blue-600 text-white text-sm px-4 py-2 rounded font-medium hover:bg-blue-700 transition"
+                >
+                  Next
+                </button>
+              )}
+            </div>
           ))}
         </div>
       </div>
