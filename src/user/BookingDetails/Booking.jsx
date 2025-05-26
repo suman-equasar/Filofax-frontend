@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Required for layout, we'll override styles
 import { Clock, Phone } from "lucide-react";
-import logo from "../assets/logo.svg";
+import logo from "../../assets/logo.svg";
 import Time from "./Time";
 
 const Booking = () => {
@@ -19,7 +19,7 @@ const Booking = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="relative w-full max-w-5xl">
         <div
-          className={`bg-white rounded-lg shadow-lg overflow-hidden w-full flex flex-col md:flex-row transition-transform duration-300 ${
+          className={`bg-white rounded-lg shadow-lg overflow-hidden w-full flex flex-col md:flex-row  transition-transform duration-300 ${
             drawerOpen ? "md:-translate-x-40" : ""
           }`}
         >

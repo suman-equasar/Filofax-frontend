@@ -1,7 +1,14 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Time = ({ isOpen, onClose, date }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const navigate = useNavigate();
+
+  const handleNextClick = (slot) => {
+    console.log("Selected slot:", slot); // Optional logging
+    navigate("/user-detail"); // ⬅️ navigate to UserDetail page
+  };
 
   const generateTimeSlots = () => {
     const slots = [];
@@ -35,7 +42,7 @@ const Time = ({ isOpen, onClose, date }) => {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay control*/}
       <div
         className={`fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden ${
           isOpen ? "block" : "hidden"
@@ -43,17 +50,21 @@ const Time = ({ isOpen, onClose, date }) => {
         onClick={onClose}
       ></div>
 
-      {/* Drawer */}
+      {/* Time Drawer */}
       <div
         className={`
-          fixed md:absolute top-0 right-0 h-full bg-white shadow-lg border-l z-50
+          fixed md:absolute top-0 right-0 h-full bg-white shadow-lg
+border-l z-50
           transition-transform duration-300
-          w-full md:w-60 
+          w-full md:w-60
           transform ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
       >
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
+        <div
+          className="flex justify-between items-center p-4 border-b
+sticky top-0 bg-white z-10"
+        >
           <h2 className="font-bold text-sm">{formatDateWithDay(date)}</h2>
           <button onClick={onClose}>
             <svg
@@ -74,15 +85,19 @@ const Time = ({ isOpen, onClose, date }) => {
         </div>
 
         {/* Time Slots */}
-        <div className="p-4 space-y-2 overflow-y-auto h-[calc(100vh-64px)]">
+        <div
+          className="p-4 space-y-2 overflow-y-auto
+h-[calc(100%-80px)] max-h-[calc(100%-80px)]"
+        >
           {timeSlots.map((slot, index) => (
-            <div key={index} className="flex items-center space-x-2">
+            <div key={index} className="flex items-center space-x-2 min-w-0">
               <button
                 onClick={() => setSelectedIndex(index)}
-                className={`text-left border rounded p-2 text-sm transition-all duration-200 flex-1 ${
+                className={`text-left border rounded p-2 text-sm
+transition-all duration-200 flex-shrink-0 ${
                   selectedIndex === index
-                    ? "bg-gray-800 text-white border-gray-800 w-1/2"
-                    : "border-blue-500 text-blue-500 hover:bg-blue-100"
+                    ? "bg-gray-800 text-white border-gray-800 w-28"
+                    : "border-blue-500 text-blue-500 hover:bg-blue-100 flex-1"
                 }`}
               >
                 {slot}
@@ -90,8 +105,9 @@ const Time = ({ isOpen, onClose, date }) => {
 
               {selectedIndex === index && (
                 <button
-                  onClick={() => alert(`Next clicked for: ${slot}`)}
-                  className="bg-blue-600 text-white text-sm px-4 py-2 rounded font-medium hover:bg-blue-700 transition"
+                  onClick={() => handleNextClick(slot)}
+                  className="bg-blue-600 text-white text-sm px-4 py-2
+rounded font-medium hover:bg-blue-700 transition flex-shrink-0"
                 >
                   Next
                 </button>

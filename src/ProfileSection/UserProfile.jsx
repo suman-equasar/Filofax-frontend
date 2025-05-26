@@ -36,7 +36,9 @@ export default function UserProfile() {
 
   // Use the data from Redux to initialize the profile
   useEffect(() => {
+    console.log("details : ", userDetails);
     if (userDetails) {
+      console.log("details : ", userDetails);
       setProfileData({
         name: userDetails.name || "",
         email: userDetails.email || "",
@@ -155,17 +157,6 @@ export default function UserProfile() {
     }
   };
 
-  const timezones = [
-    "America/New_York",
-    "America/Chicago",
-    "America/Denver",
-    "America/Los_Angeles",
-    "Europe/London",
-    "Europe/Paris",
-    "Asia/Tokyo",
-    "Australia/Sydney",
-  ];
-
   return (
     <div className="max-w-2xl p-6 bg-white mt-12">
       <h1 className="text-xl font-medium mb-6">Account Details</h1>
@@ -275,18 +266,13 @@ export default function UserProfile() {
               Current Time: {currentTime}
             </span>
           </div>
-          <select
+          <input
             id="timezone"
             value={profileData.timezone}
             onChange={handleInputChange}
+            disabled
             className="w-full p-3 border border-[#a4cc028f] text-gray-400 font-light rounded-lg focus:outline-none focus:ring-1 focus:ring-[#a4cc028f]"
-          >
-            {timezones.map((tz) => (
-              <option key={tz} value={tz}>
-                {tz.replace("_", " ")}
-              </option>
-            ))}
-          </select>
+          />
         </div>
 
         <div className="flex justify-end">

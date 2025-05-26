@@ -10,53 +10,63 @@ import Availability from "./pages/dashboard/Availability";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GoogleCallback from "./pages/auth/GoogleCallback";
 import { Book } from "lucide-react";
-import Booking from "./user/Booking";
+import Booking from "./user/BookingDetails/Booking";
+import Time from "./user/BookingDetails/Time";
+import UserDetail from "./user/BookingDetails/UserDetail";
+import Schedule from "./user/BookingDetails/Schedule";
 
 function App() {
   return (
-    //<BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Dashboard Routes with Layout */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* Default redirect */}
+          <Route
+            index
+            element={<Navigate to="/dashboard/event-types" replace />}
+          />
+
+          {/* Child routes that will render in the outlet */}
+          <Route path="user-profile" element={<UserProfile />} />
+          <Route path="event-types" element={<EventTypes />} />
+          <Route path="meetings" element={<Meetings />} />
+          <Route path="availability" element={<Availability />} />
+        </Route>
+
+        {/* User Profile */}
+        <Route
+          path="/user-profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+
+    // <BrowserRouter>
     //   <Routes>
-    //     {/* Public Routes */}
-    //     <Route path="/" element={<Login />} />
-    //     <Route path="/signup" element={<Signup />} />
-
-    //     {/* Dashboard Routes with Layout */}
-    //     <Route
-    //       path="/dashboard"
-    //       element={
-    //         <ProtectedRoute>
-    //           <DashboardLayout />
-    //         </ProtectedRoute>
-    //       }
-    //     >
-    //       {/* Default redirect */}
-    //       <Route
-    //         index
-    //         element={<Navigate to="/dashboard/event-types" replace />}
-    //       />
-
-    //       {/* Child routes that will render in the outlet */}
-    //       <Route path="user-profile" element={<UserProfile />} />
-    //       <Route path="event-types" element={<EventTypes />} />
-    //       <Route path="meetings" element={<Meetings />} />
-    //       <Route path="availability" element={<Availability />} />
-    //     </Route>
-
-    //     {/* User Profile */}
-    //     <Route
-    //       path="/user-profile"
-    //       element={
-    //         <ProtectedRoute>
-    //           <UserProfile />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-
-    //     {/* Catch-all route for 404 */}
-    //     <Route path="*" element={<Navigate to="/" replace />} />
+    //     <Route path="/" element={<Booking />} />
+    //     <Route path="/user-detail" element={<UserDetail />} />
+    //     <Route path="/user-schedule" element={<Schedule />} />
     //   </Routes>
-    //</BrowserRouter>
-    <Booking />
+    // </BrowserRouter>
   );
 }
 
