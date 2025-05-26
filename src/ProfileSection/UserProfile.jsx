@@ -21,9 +21,9 @@ export default function UserProfile() {
     name: "",
     email: "",
     welcomeMessage: "Welcome to my profile",
-    dateFormat: "DD/MM/YYYY",
+    dateFormat: "YYYY/MM/DD",
     timeFormat: "12h",
-    timezone: "America/New_York",
+    timezone: "India",
     profileImage: null,
   });
   const [previewImage, setPreviewImage] = useState("/api/placeholder/80/80");
@@ -36,16 +36,14 @@ export default function UserProfile() {
 
   // Use the data from Redux to initialize the profile
   useEffect(() => {
-    console.log("details : ", userDetails);
     if (userDetails) {
-      console.log("details : ", userDetails);
       setProfileData({
         name: userDetails.name || "",
         email: userDetails.email || "",
         welcomeMessage: userDetails.welcomeMessage || "Welcome to my profile",
-        dateFormat: userDetails.dateFormat || "DD/MM/YYYY",
+        dateFormat: userDetails.dateFormat || "YYYY/MM/DD",
         timeFormat: userDetails.timeFormat || "12h",
-        timezone: userDetails.timezone || "America/New_York",
+        timezone: userDetails.timezone || "India",
         profileImage: userDetails.profileImage || null,
       });
 
