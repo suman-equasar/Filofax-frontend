@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, Calendar, X } from "lucide-react";
 
 export default function Meetings() {
   const [activeTab, setActiveTab] = useState("Upcoming");
-  const [expandedEventIds, setExpandedEventIds] = useState(["event1"]);
+  const [expandedEventIds, setExpandedEventIds] = useState("false");
 
   const toggleEventDetails = (eventId) => {
     setExpandedEventIds((prev) =>
