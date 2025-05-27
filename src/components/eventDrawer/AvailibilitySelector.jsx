@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronLeft, Pencil, Plus, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const defaultHours = {
+  
   S: null,
   M: [{ start: "09:00am", end: "05:00pm" }],
   T: [{ start: "09:00am", end: "05:00pm" }],
@@ -21,7 +23,11 @@ const dayMap = {
   S2: "Saturday",
 };
 
+
+
+
 const AvailabilitySelector = () => {
+
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   // Adding multiple time slots for Monday to demonstrate the feature
@@ -35,6 +41,13 @@ const AvailabilitySelector = () => {
   });
 
   const toggleExpand = () => setIsExpanded(!isExpanded);
+  
+  const navigate = useNavigate();
+  const handleEditClick = () => {
+  // Navigate to the edit page or perform any other action
+  navigate("/availability");
+};
+
 
   const handleTimeChange = (day, index, type, value) => {
     const updated = { ...weeklyHours };
@@ -83,7 +96,10 @@ const AvailabilitySelector = () => {
               schedule
             </p>
             <button
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => {
+                setIsEditing(!isEditing);
+                handleEditClick();
+              }}
               className="text-gray-500 hover:text-black"
             >
               <Pencil size={16} />

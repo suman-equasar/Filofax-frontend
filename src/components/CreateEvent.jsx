@@ -74,16 +74,7 @@ const CreateEvent = ({ toggleSidebar, onCreateNewEvent }) => {
             className="absolute right-0 top-full mt-2 z-50 bg-white border border-[#E1F395] shadow-[4px_4px_0px_0px_rgba(164,204,0,0.51)] rounded-xl p-4 w-80"
           >
             <h3 className="font-medium mb-2">Create New Event</h3>
-            <div className="mb-4">
-              <label className="block text-sm text-gray-700 mb-1">
-                Event Name
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="One-on-One Meeting"
-              />
-            </div>
+
             <button
               onClick={handleCreateEvent}
               className="w-full bg-[#A4CC02] text-white py-2 rounded-md hover:bg-[#93b502]"

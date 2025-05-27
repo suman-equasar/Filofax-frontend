@@ -26,8 +26,19 @@ export default function UserProfile() {
     timezone: "India",
     profileImage: null,
   });
+
   const [previewImage, setPreviewImage] = useState("/api/placeholder/80/80");
   const fileInputRef = useRef(null);
+
+  // Date Format Function
+  const formatDateByPattern = (date, pattern) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    if (pattern === "YYYY/MM/DD") {
+      return `${year}/${month}/${day}`;
+    }
+  };
 
   // Get user details from Redux store
   const userDetails = useSelector((state) => state.user.userDetails);
@@ -118,6 +129,11 @@ export default function UserProfile() {
       Object.keys(profileData).forEach((key) => {
         formData.append(key, profileData[key]);
       });
+      const formattedDate = formatDateByPattern(
+        new Date(),
+        profileData.dateFormat
+      );
+      formData.append("formattedDate", formattedDate);
 
       const response = await fetch(`${updateProfile}/update-profile`, {
         method: "PUT",
@@ -238,6 +254,7 @@ export default function UserProfile() {
               type="text"
               value={profileData.dateFormat}
               onChange={handleInputChange}
+              disabled
               className="w-full p-3 border border-[#a4cc028f] text-gray-400 font-light rounded-lg focus:outline-none focus:ring-1 focus:ring-[#a4cc028f]"
             />
           </div>
