@@ -7,6 +7,7 @@ import LocationSelector from "./LocationSelector";
 import AvailibilitySelector from "./AvailibilitySelector";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { extractTokenFromCookie } from "../../utils/auth";
 
 const backdropVariant = {
   hidden: { opacity: 0 },
@@ -18,6 +19,7 @@ const drawerVariant = {
   visible: { x: 0 },
 };
 
+const { token, access_token, refresh_token } = extractTokenFromCookie();
 const EventDetailDrawer = ({ event, onClose }) => {
   const [eventName, setEventName] = useState("New Meeting");
   const [eventDuration, setEventDuration] = useState(15);
@@ -34,7 +36,7 @@ const EventDetailDrawer = ({ event, onClose }) => {
   const handleSaveChanges = async () => {
     try {
       const eventUrl = import.meta.env.VITE_CALENDAR_AUTH_URL;
-      const token = Cookies.get("token");
+      // const token = Cookies.get("token");
 
       if (!token) throw new Error("No token found. Please log in.");
 
@@ -45,6 +47,9 @@ const EventDetailDrawer = ({ event, onClose }) => {
           duration: eventDuration,
           location: location ? location.name : null,
           eventType: "One-on-One", // Static in this example
+          token,
+          access_token,
+          refresh_token,
         },
         {
           headers: {
@@ -128,7 +133,9 @@ const EventDetailDrawer = ({ event, onClose }) => {
                     <p className="text-sm font-semibold text-black">
                       Jason Jay
                     </p>
-                    <p className="text-sm text-gray-400">vikrant.koundal@gmail.com</p>
+                    <p className="text-sm text-gray-400">
+                      vikrant.koundal@gmail.com
+                    </p>
                   </div>
                 </div>
               </div>
