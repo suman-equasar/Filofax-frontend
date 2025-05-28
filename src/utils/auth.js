@@ -31,3 +31,16 @@ export const clearAuthToken = () => {
   Cookies.remove("token");
   localStorage.removeItem("token");
 };
+
+export const extractTokenFromCookie = () => {
+  const token = Cookies.get("token");
+
+  const accessToken = Cookies.get("access_token");
+  const refreshToken = Cookies.get("refresh_token");
+
+  return {
+    token: token || null,
+    access_token: accessToken || null,
+    refresh_token: refreshToken || null,
+  };
+};

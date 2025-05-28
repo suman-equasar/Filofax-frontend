@@ -81,6 +81,7 @@ export default function Login() {
 
         // ✅ Save user details to Redux store
         dispatch(setUserDetails(response.data.userDetails));
+        console.log("data", response.data.userDetails);
 
         // Navigate to dashboard
         navigate("/dashboard");

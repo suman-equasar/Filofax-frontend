@@ -4,17 +4,6 @@ import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
 import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
 
 export default function UserProfile() {
-  // Extract token from query string and store it properly
-  // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   const token = params.get("token");
-
-  //   if (token) {
-  //     setAuthToken(token); // Use the unified auth method
-  //     navigate("/", { replace: true }); // Clean URL
-  //   }
-  // }, [location, navigate]);
-
   const [currentTime, setCurrentTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -30,12 +19,15 @@ export default function UserProfile() {
   const fileInputRef = useRef(null);
 
   // Get user details from Redux store
-  const userDetails = useSelector((state) => state.user.userDetails);
+  const userDetails = useSelector((state) => state.user.userDetails) || {};
   // Initialize dispatch
   const dispatch = useDispatch();
 
   // Use the data from Redux to initialize the profile
   useEffect(() => {
+    console.log(`User Details from redux :`, userDetails);
+    console.log("User email :", userDetails?.email);
+
     if (userDetails) {
       setProfileData({
         name: userDetails.name || "",
