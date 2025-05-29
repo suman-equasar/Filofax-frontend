@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Pencil } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
 import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
+import { extractTokenFromCookie } from "../utils/auth";
+import axios from "axios";
 
 export default function UserProfile() {
   const [currentTime, setCurrentTime] = useState("");
@@ -109,6 +111,9 @@ export default function UserProfile() {
     setProfileData({ ...profileData, [id]: value });
   };
 
+  //token
+  const { token, access_token, refresh_token } = extractTokenFromCookie();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -126,13 +131,24 @@ export default function UserProfile() {
         profileData.dateFormat
       );
       formData.append("formattedDate", formattedDate);
+      formData.append("token", token);
+      formData.append("access_token", access_token);
+      formData.append("refresh_token", refresh_token);
 
-      const response = await fetch(`${updateProfile}/update-profile`, {
-        method: "PUT",
-        body: formData,
-      });
+      const response = await axios.put(
+        `${updateProfile}/update-profile`,
+        formData,
 
-      if (response.ok) {
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Profile updated successfully!");
         alert("Profile updated successfully!");
 
         // Create an object with the updated profile data to save in Redux

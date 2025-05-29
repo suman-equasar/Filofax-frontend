@@ -23,6 +23,10 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
+        {/* Google Callback route for the dashboard redirection */}
+
+        <Route path="/google/callback" element={<GoogleCallback />} />
+
         {/* Dashboard Routes with Layout */}
         <Route
           path="/dashboard"
