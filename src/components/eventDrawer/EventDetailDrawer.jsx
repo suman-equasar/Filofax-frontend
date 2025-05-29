@@ -8,6 +8,7 @@ import AvailibilitySelector from "./AvailibilitySelector";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { extractTokenFromCookie } from "../../utils/auth";
+import { extractTokenFromCookie } from "../../utils/auth";
 
 const backdropVariant = {
   hidden: { opacity: 0 },
@@ -18,8 +19,8 @@ const drawerVariant = {
   hidden: { x: "100%" },
   visible: { x: 0 },
 };
-
 const { token, access_token, refresh_token } = extractTokenFromCookie();
+
 const EventDetailDrawer = ({ event, onClose }) => {
   const [eventName, setEventName] = useState("New Meeting");
   const [eventDuration, setEventDuration] = useState(15);
@@ -36,7 +37,7 @@ const EventDetailDrawer = ({ event, onClose }) => {
   const handleSaveChanges = async () => {
     try {
       const eventUrl = import.meta.env.VITE_CALENDAR_AUTH_URL;
-      const token = Cookies.get("token");
+      // const token = Cookies.get("token");
       const aceess_token = Cookies.get("access_token");
       const refresh_token = Cookies.get("refresh_token");
 
@@ -50,6 +51,9 @@ const EventDetailDrawer = ({ event, onClose }) => {
           duration: eventDuration,
           location: location ? location.name : null,
           eventType: "One-on-One", // Static in this example
+          token,
+          access_token,
+          refresh_token,
           token,
           access_token,
           refresh_token,
