@@ -2,6 +2,20 @@ import { useState } from "react";
 import { Clock, Calendar, X, Copy, Info, Plus } from "lucide-react";
 import axios from "axios";
 
+// ⏰ Generates time slots from 12:00 AM to 11:45 PM in 15-minute intervals
+const generateTimeOptions = () => {
+  const times = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minutes = 0; minutes < 60; minutes += 15) {
+      const ampm = hour < 12 ? "am" : "pm";
+      const h = hour % 12 === 0 ? 12 : hour % 12;
+      const m = minutes === 0 ? "00" : minutes.toString().padStart(2, "0");
+      times.push(`${h}:${m}${ampm}`);
+    }
+  }
+  return times;
+};
+
 export default function Availability() {
   const days = [
     { id: 1, short: "S", full: "Sunday" },
@@ -13,42 +27,49 @@ export default function Availability() {
     { id: 7, short: "S", full: "Saturday" },
   ];
 
-  const timeOptions = [
-    "9:00am",
-    "10:00am",
-    "11:00am",
-    "12:00pm",
-    "1:00pm",
-    "2:00pm",
-    "3:00pm",
-    "4:00pm",
-    "5:00pm",
-    "6:00pm",
-    "7:00pm",
-    "8:00pm",
-    "9:00pm",
-  ];
+  const timeOptions = generateTimeOptions();
 
   const [activeTab, setActiveTab] = useState("weekly");
   const [weeklyHours, setWeeklyHours] = useState(
     days.map((day) => ({
       dayId: day.id,
-      available: day.id !== 1, // Sunday is unavailable by default
+      available: day.id !== 1,
       timeSlots:
-        day.id !== 1 ? [{ id: 1, startTime: "9:00am", endTime: "5:00pm" }] : [],
+        day.id !== 1
+          ? [{ id: 1, startTime: "9:00am", endTime: "5:00pm" }]
+          : [],
     }))
   );
-
+const isOverlapping = (slot) => {
+  const sorted = [...slot].sort(
+    (a, b) =>
+      timeOptions.indexOf(a.startTime) - timeOptions.indexOf(b.startTime)
+  );
+  for (let i = 1; i < sorted.length; i++) {
+    if (
+      timeOptions.indexOf(sorted[i].startTime) <
+      timeOptions.indexOf(sorted[i - 1].endTime)
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
   const saveAvailability = async () => {
+
+    // Validate time slots for overlaps
+    for (const day of weeklyHours) {
+      if (day.available && isOverlapping(day.timeSlots)) {
+        alert(`Time slots for ${days.find((d) => d.id === day.dayId).full} overlap.`);
+        return;
+      }
+    }
+    // Prepare form data for submission
     const formData = new FormData();
 
-    // Append each day's data
     weeklyHours.forEach((day, index) => {
       formData.append(`availability[${index}][dayId]`, day.dayId.toString());
-      formData.append(
-        `availability[${index}][available]`,
-        day.available.toString()
-      );
+      formData.append(`availability[${index}][available]`, day.available.toString());
 
       day.timeSlots.forEach((slot, slotIndex) => {
         formData.append(
@@ -64,21 +85,13 @@ export default function Availability() {
 
     try {
       const response = await axios.post(
-        "https://your-backend-api.com/availability", // 🔁 Replace with your actual endpoint
-        formData,
-        {
-          headers: {
-            // Do NOT set Content-Type — Axios sets it automatically for FormData
-            // Optionally add auth header
-            // Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        "https://your-backend-api.com/availability", // replace with your API
+        formData
       );
-
-      console.log("Server response:", response.data);
+      console.log("Saved:", response.data);
       alert("Availability saved successfully!");
     } catch (error) {
-      console.error("Error saving availability:", error);
+      console.error("Error saving:", error);
       alert("Failed to save availability.");
     }
   };
@@ -114,6 +127,13 @@ export default function Availability() {
     );
   };
 
+  const getNextTimeOption = (time) => {
+    const index = timeOptions.indexOf(time);
+    return index !== -1 && index < timeOptions.length - 1
+      ? timeOptions[index + 1]
+      : timeOptions[timeOptions.length - 1];
+  };
+
   const addTimeSlot = (dayId) => {
     setWeeklyHours(
       weeklyHours.map((day) => {
@@ -138,20 +158,11 @@ export default function Availability() {
     );
   };
 
-  const getNextTimeOption = (time) => {
-    const index = timeOptions.indexOf(time);
-    return index !== -1 && index < timeOptions.length - 1
-      ? timeOptions[index + 1]
-      : timeOptions[timeOptions.length - 1];
-  };
-
   const removeTimeSlot = (dayId, slotId) => {
     setWeeklyHours(
       weeklyHours.map((day) => {
         if (day.dayId === dayId) {
-          const updatedSlots = day.timeSlots.filter(
-            (slot) => slot.id !== slotId
-          );
+          const updatedSlots = day.timeSlots.filter((slot) => slot.id !== slotId);
           return {
             ...day,
             timeSlots: updatedSlots,
@@ -168,12 +179,10 @@ export default function Availability() {
       <h1 className="text-2xl font-medium mb-6">Availability</h1>
 
       <div className="rounded-lg p-8 border-2 border-gray-200 bg-white shadow-sm">
-        {/* Header */}
         <div className="pb-4 border-b border-gray-200">
           <h2 className="text-md font-medium text-gray-600">Schedule</h2>
         </div>
 
-        {/* Tabs */}
         <div className="flex items-center justify-between pb-4">
           <div className="flex space-x-6">
             <button
@@ -206,7 +215,6 @@ export default function Availability() {
           </button>
         </div>
 
-        {/* Weekly Hours */}
         {activeTab === "weekly" && (
           <div>
             <p className="text-xs text-gray-500 mb-4">
@@ -227,12 +235,7 @@ export default function Availability() {
                           <select
                             value={slot.startTime}
                             onChange={(e) =>
-                              updateTime(
-                                day.dayId,
-                                slot.id,
-                                "startTime",
-                                e.target.value
-                              )
+                              updateTime(day.dayId, slot.id, "startTime", e.target.value)
                             }
                             className="bg-gray-100 px-3 py-1 rounded-md"
                           >
@@ -248,12 +251,7 @@ export default function Availability() {
                           <select
                             value={slot.endTime}
                             onChange={(e) =>
-                              updateTime(
-                                day.dayId,
-                                slot.id,
-                                "endTime",
-                                e.target.value
-                              )
+                              updateTime(day.dayId, slot.id, "endTime", e.target.value)
                             }
                             className="bg-gray-100 px-3 py-1 rounded-md"
                           >
@@ -264,13 +262,8 @@ export default function Availability() {
                             ))}
                           </select>
 
-                          <button
-                            onClick={() => removeTimeSlot(day.dayId, slot.id)}
-                          >
-                            <X
-                              size={18}
-                              className="text-gray-400 hover:text-red-500"
-                            />
+                          <button onClick={() => removeTimeSlot(day.dayId, slot.id)}>
+                            <X size={18} className="text-gray-400 hover:text-red-500" />
                           </button>
 
                           {index === day.timeSlots.length - 1 && (
@@ -301,7 +294,6 @@ export default function Availability() {
               </div>
             ))}
 
-            {/* Timezone */}
             <div className="mt-6 text-sm text-blue-600 cursor-pointer flex items-center">
               India Standard Time
               <svg
@@ -321,14 +313,12 @@ export default function Availability() {
           </div>
         )}
 
-        {/* Date-specific Tab */}
         {activeTab === "date-specific" && (
           <div className="text-sm text-gray-500 mt-4">
             <p>Configure date-specific availability settings</p>
           </div>
         )}
 
-        {/* Save Button */}
         <div className="mt-6 flex justify-end">
           <button
             onClick={saveAvailability}

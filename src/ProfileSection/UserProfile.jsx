@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Pencil } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
 import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
+import { extractTokenFromCookie } from "../utils/auth";
+import axios from "axios";
 
 export default function UserProfile() {
   const [currentTime, setCurrentTime] = useState("");
@@ -16,8 +18,17 @@ export default function UserProfile() {
     profileImage: null,
   });
 
+  const { token, acesss_token, refresh_token } = extractTokenFromCookie();
+
+  console.log("Token from cookie:", token);
+  console.log("Access Token from cookie:", acesss_token);
+  console.log("Refresh Token from cookie:", refresh_token);
+
+  
   const [previewImage, setPreviewImage] = useState("/api/placeholder/80/80");
   const fileInputRef = useRef(null);
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Date Format Function
   const formatDateByPattern = (date, pattern) => {
@@ -162,6 +173,35 @@ export default function UserProfile() {
       setIsLoading(false);
     }
   };
+  // Function to handle account deletion
+  const handleDeleteAccount = async () => {
+    try {
+      const deleteProfileURL = import.meta.env.VITE_PROFILE_AUTH_URL;
+
+      const response = await axios.delete(
+        `${deleteProfileURL}/delete-profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Account deleted successfully.");
+
+        // Optional: Clear Redux or redirect
+        // dispatch(logoutUser());
+        // navigate("/goodbye");
+      } else {
+        throw new Error("Failed to delete account.");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("There was a problem deleting the account.");
+    }
+  };
 
   return (
     <div className="max-w-2xl p-6 bg-white mt-12">
@@ -282,7 +322,15 @@ export default function UserProfile() {
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-around">
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            className=" px-4 py-2 bg-[#b03200] text-white rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+          >
+            Delete Account
+          </button>
+
           <button
             type="button"
             onClick={handleSubmit}
@@ -292,6 +340,33 @@ export default function UserProfile() {
             {isLoading ? "Saving..." : "Save Changes"}
           </button>
         </div>
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+              <p className="mb-6 text-gray-700">
+                Are you sure you want to delete this account?
+              </p>
+              <div className="flex justify-end gap-4">
+                <span
+                  className="px-4 py-2 text-sm font-medium bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </span>
+                <span
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded hover:bg-red-700 transition"
+                  onClick={async () => {
+                    setShowDeleteConfirm(false);
+                    await handleDeleteAccount(); // Axios delete function
+                  }}
+                >
+                  OK
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
