@@ -8,7 +8,6 @@ import AvailibilitySelector from "./AvailibilitySelector";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { extractTokenFromCookie } from "../../utils/auth";
-import { extractTokenFromCookie } from "../../utils/auth";
 
 const backdropVariant = {
   hidden: { opacity: 0 },

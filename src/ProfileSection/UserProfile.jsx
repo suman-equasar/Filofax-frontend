@@ -6,6 +6,9 @@ import { extractTokenFromCookie } from "../utils/auth";
 import axios from "axios";
 
 export default function UserProfile() {
+  //token
+  const { token, access_token, refresh_token } = extractTokenFromCookie();
+
   const [currentTime, setCurrentTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -19,7 +22,7 @@ export default function UserProfile() {
   });
 
   console.log("Token from cookie:", token);
-  console.log("Access Token from cookie:", acesss_token);
+  console.log("Access Token from cookie:", access_token);
   console.log("Refresh Token from cookie:", refresh_token);
 
   const [previewImage, setPreviewImage] = useState("/api/placeholder/80/80");
@@ -37,33 +40,17 @@ export default function UserProfile() {
     }
   };
 
-  // Get user details from Redux store
-  const userDetails = useSelector((state) => state.user.userDetails) || {};
-  // Initialize dispatch
-  const dispatch = useDispatch();
+  // the user details from api and store
 
-  // Use the data from Redux to initialize the profile
-  useEffect(() => {
-    console.log(`User Details from redux :`, userDetails);
-    console.log("User email :", userDetails?.email);
+  console.log(
+    "value i got in state for google ",
+    useSelector((state) => state.User.dataValues)
+  );
 
-    if (userDetails) {
-      setProfileData({
-        name: userDetails.name || "",
-        email: userDetails.email || "",
-        welcomeMessage: userDetails.welcomeMessage || "Welcome to my profile",
-        dateFormat: userDetails.dateFormat || "YYYY/MM/DD",
-        timeFormat: userDetails.timeFormat || "12h",
-        timezone: userDetails.timezone || "India",
-        profileImage: userDetails.profileImage || null,
-      });
-
-      // If there's a profile image from Redux, update the preview
-      if (userDetails.profileImage) {
-        setPreviewImage(userDetails.profileImage);
-      }
-    }
-  }, [userDetails]);
+  console.log(
+    "value i got in state for local ",
+    useSelector((state) => state.user.userDetails)
+  );
 
   // Update time every minute
   useEffect(() => {
@@ -116,9 +103,6 @@ export default function UserProfile() {
     const { id, value } = e.target;
     setProfileData({ ...profileData, [id]: value });
   };
-
-  //token
-  const { token, access_token, refresh_token } = extractTokenFromCookie();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

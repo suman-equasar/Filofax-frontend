@@ -20,8 +20,12 @@ export default function GoogleCallback() {
       // Store tokens (JWT and Google tokens)
       setAuthToken(token);
 
-      if (token) Cookies.set("token", token, { expires: 7 });
-      if (accessToken) Cookies.set("access_token", accessToken, { expires: 1 });
+      if (token) {
+        Cookies.set("token", token, { expires: 7 });
+      }
+      if (accessToken) {
+        Cookies.set("access_token", accessToken, { expires: 1 });
+      }
       if (refreshToken)
         Cookies.set("refresh_token", refreshToken, { expires: 7 });
 

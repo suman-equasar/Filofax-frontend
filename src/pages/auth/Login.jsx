@@ -70,14 +70,24 @@ export default function Login() {
         console.log("Login successful:", response.data.userDetails);
 
         // Get tokens from response
-        const { token, refreshToken } = response.data;
+        const { token, access_token, refresh_token } = response.data;
+
+        console.log(
+          `Data fetched from response token : ${token}, access_token : ${access_token}, refresh_token : ${refresh_token}`
+        );
 
         // Use the centralized auth utility to set the token
+
         const tokenSet = setAuthToken(token);
         console.log("Auth token set successfully:", tokenSet);
 
+        if (access_token) {
+          Cookies.set("access_token", access_token, { expires: 7 });
+        }
+
         // Still store refresh token with Cookies directly
-        Cookies.set("refreshToken", refreshToken, { expires: 7 }); // optional
+        if (refresh_token)
+          Cookies.set("refreshToken", refresh_token, { expires: 7 }); // optional
 
         // ✅ Save user details to Redux store
         dispatch(setUserDetails(response.data.userDetails));
