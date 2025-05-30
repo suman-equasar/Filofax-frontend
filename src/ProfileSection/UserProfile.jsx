@@ -3,7 +3,11 @@ import { Pencil } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
 import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
 import { extractTokenFromCookie } from "../utils/auth";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import axios from "axios";
+import { clearUserDetails } from "../redux/userSlice";
+import { persistor } from "../redux/store"; // <-- import this
+import Cookies from "js-cookie";
 
 export default function UserProfile() {
   const [currentTime, setCurrentTime] = useState("");
@@ -18,13 +22,14 @@ export default function UserProfile() {
     profileImage: null,
   });
 
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
+
   const { token, acesss_token, refresh_token } = extractTokenFromCookie();
 
   console.log("Token from cookie:", token);
   console.log("Access Token from cookie:", acesss_token);
   console.log("Refresh Token from cookie:", refresh_token);
 
-  
   const [previewImage, setPreviewImage] = useState("/api/placeholder/80/80");
   const fileInputRef = useRef(null);
 
@@ -173,6 +178,7 @@ export default function UserProfile() {
       setIsLoading(false);
     }
   };
+
   // Function to handle account deletion
   const handleDeleteAccount = async () => {
     try {
@@ -187,13 +193,29 @@ export default function UserProfile() {
           },
         }
       );
-
-      if (response.status === 200) {
+      console.log("delete button call");
+      if (response.status === 200 || response.success) {
         alert("Account deleted successfully.");
+        console.log("Alert Open");
+        // ✅ Clear Redux state
+        await dispatch(clearUserDetails());
+        console.log("Redux state cleared");
 
-        // Optional: Clear Redux or redirect
-        // dispatch(logoutUser());
-        // navigate("/goodbye");
+        // ✅ Purge redux-persist store to prevent rehydration
+        await persistor.purge();
+
+        console.log("Persistor purged work");
+        // ✅ Remove cookies and localStorage
+        Cookies.remove("token");
+        console.log("Cookie removed");
+        localStorage.removeItem("token");
+        console.log("Local storage token removed");
+
+        console.log("before navigate");
+        // ✅ Redirect
+        navigate("/");
+
+        console.log("after navigate");
       } else {
         throw new Error("Failed to delete account.");
       }
