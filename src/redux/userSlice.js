@@ -6,6 +6,10 @@ const userSlice = createSlice({
   initialState: {
     userDetails: null, // for normal login
     googleData: null, // for google login
+
+    //optional
+    microsoftData: null, // for microsoft login
+
     authMethod: "none", // Track login method
   },
   reducers: {
@@ -18,22 +22,46 @@ const userSlice = createSlice({
       state.authMethod = "google";
     },
 
+    // Optional
+    setMicrosoftUser: (state, action) => {
+      state.microsoftData = action.payload;
+      state.authMethod = "microsoft";
+    },
+
     clearUserDetails: (state) => {
       state.userDetails = null;
+      state.googleData = null;
+      state.microsoftData = null; //optional
+      state.authMethod = null;
     },
     updateUserProfile: (state, action) => {
-      if (state.authMethod === "normal") {
+      if (state.authMethod === "local") {
         state.userDetails = {
           ...state.userDetails,
           ...action.payload,
         };
       } else if (state.authMethod === "google") {
-        state.googleData = {};
+        state.googleData = {
+          ...state.googleData,
+          ...action.payload,
+        };
+      }
+      //optional
+      else if (state.authMethod === "microsoft") {
+        state.microsoftData = {
+          ...state.microsoftData,
+          ...action.payload,
+        };
       }
     },
   },
 });
 
-export const { setUserDetails, clearUserDetails, updateUserProfile } =
-  userSlice.actions;
+export const {
+  setUserDetails,
+  setGoogleUser,
+  setMicrosoftUser, // optional
+  clearUserDetails,
+  updateUserProfile,
+} = userSlice.actions;
 export default userSlice.reducer;

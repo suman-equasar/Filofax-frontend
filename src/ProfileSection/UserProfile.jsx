@@ -6,20 +6,18 @@ import { extractTokenFromCookie } from "../utils/auth";
 import axios from "axios";
 
 export default function UserProfile() {
-  //token
+  //token extracted from cookies
   const { token, access_token, refresh_token } = extractTokenFromCookie();
+
+  // Redux state access
+  const { authMethod } = useSelector((state = state.user));
+  const userDetails = useSelector((state) => state.user.userDetails);
+  const googleData = useSelector((state) => state.user.googleData);
+  const microsoftData = useSelector((state) => state.microsoftData);
 
   const [currentTime, setCurrentTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "",
-    email: "",
-    welcomeMessage: "Welcome to my profile",
-    dateFormat: "YYYY/MM/DD",
-    timeFormat: "12h",
-    timezone: "India",
-    profileImage: null,
-  });
+  const [profileData, setProfileData] = useState(extractProfileDate());
 
   console.log("Token from cookie:", token);
   console.log("Access Token from cookie:", access_token);
@@ -40,17 +38,61 @@ export default function UserProfile() {
     }
   };
 
-  // the user details from api and store
+  // Get user detals from Redux store
 
-  console.log(
-    "value i got in state for google ",
-    useSelector((state) => state.User.dataValues)
-  );
+  const extractProfileDate = () => {
+    if (authMethod === "local" && userDetails) {
+      return {
+        name: userDetails.name || "",
+        email: userDetails.email || "",
+        welcomeMessage: userDetails.welcomeMessage || "Welcome to my profile",
+        dateFormat: userDetails.dateFormat || "YYYY/MM/DD",
+        timeFormat: userDetails.timeFormat || "12h",
+        timezone: userDetails.timezone || "Asia/Kolkata",
+        profileImageLink: userDetails.profileImageLink || "null",
+      };
+    }
 
-  console.log(
-    "value i got in state for local ",
-    useSelector((state) => state.user.userDetails)
-  );
+    if (authMethod === "google" && googleData) {
+      return {
+        name: `${googleData.name}` || "",
+        email: googleData.email || "",
+        welcomeMessage: "Welcome to my profile",
+        dateFormat: "YYYY/MM/DD",
+        timeFormat: "12h",
+        timezone: "Asia/Kolkata",
+        profileImageLink:
+          googleData.profileImageLink || googleData.picture || null,
+      };
+    }
+
+    // optional
+    if (authMethod === "microsoft" && microsoftData) {
+      return {
+        name: microsoftData.name || "",
+        email: microsoftData.email || "",
+        welcomeMessage: "Welcome to my profile",
+        dataFormat: "YYYY/MM/DD",
+        timeFormat: "12h",
+        timezone: "Asia/Kolkata",
+        profileImageLink: microsoftData.profileImageLink || null,
+      };
+    }
+
+    return {
+      name: "",
+      email: "",
+      welcomeMessage: "Welcome to my profile",
+      dateFormat: "YYYY/MM/DD",
+      timeFormat: "12h",
+      timezone: "Asia/Kolkata",
+      profileImageLink: null,
+    };
+  };
+
+  /*
+
+  */
 
   // Update time every minute
   useEffect(() => {
@@ -157,7 +199,26 @@ export default function UserProfile() {
         }
 
         // Update Redux state with the new profile data
-        dispatch(updateUserProfile(updatedData));
+        // dispatch(updateUserProfile(updatedData)); // vikrant code
+
+        if (authMethod === "local") {
+          dispatchEvent(
+            updateUserProfile({
+              ...updatedData,
+              profileImageLink:
+                previewImage !== "/api/placeholder/80/80"
+                  ? previewImage
+                  : userDetails.profileImageLink,
+            })
+          );
+        } else if (authMethod === "google") {
+          dispatchEvent(
+            updateUserProfile({
+              ...updatedData,
+              profileImageLink: previewImage !== "/api/place",
+            })
+          );
+        }
       } else {
         throw new Error("Failed to update profile");
       }
