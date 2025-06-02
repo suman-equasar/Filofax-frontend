@@ -1,27 +1,38 @@
 import { useState, useEffect, useRef } from "react";
 import { Pencil } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
-import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
-import { extractTokenFromCookie } from "../utils/auth";
+import { clearUserDetails, updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
+import { clearAuthToken, extractTokenFromCookie } from "../utils/auth";
 import axios from "axios";
+import { persistor } from "../redux/store";
+
+import {
+  setUserDetails,
+  setGoogleUser,
+  setMicrosoftUser,
+} from "../redux/userSlice";
 
 export default function UserProfile() {
   //token extracted from cookies
   const { token, access_token, refresh_token } = extractTokenFromCookie();
 
+  const dispatch = useDispatch();
+
   // Redux state access
-  const { authMethod } = useSelector((state = state.user));
+  const { authMethod } = useSelector((state) => state.user);
   const userDetails = useSelector((state) => state.user.userDetails);
   const googleData = useSelector((state) => state.user.googleData);
   const microsoftData = useSelector((state) => state.microsoftData);
 
   const [currentTime, setCurrentTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [profileData, setProfileData] = useState(extractProfileDate());
 
   console.log("Token from cookie:", token);
   console.log("Access Token from cookie:", access_token);
   console.log("Refresh Token from cookie:", refresh_token);
+  console.log("Auth method:", authMethod);
+  console.log("Google data:", googleData);
+  console.log("User details:", userDetails);
 
   const [previewImage, setPreviewImage] = useState("/api/placeholder/80/80");
   const fileInputRef = useRef(null);
@@ -39,8 +50,8 @@ export default function UserProfile() {
   };
 
   // Get user detals from Redux store
-
-  const extractProfileDate = () => {
+  const extractProfileData = () => {
+    console.log("Auth method :", authMethod);
     if (authMethod === "local" && userDetails) {
       return {
         name: userDetails.name || "",
@@ -49,21 +60,22 @@ export default function UserProfile() {
         dateFormat: userDetails.dateFormat || "YYYY/MM/DD",
         timeFormat: userDetails.timeFormat || "12h",
         timezone: userDetails.timezone || "Asia/Kolkata",
-        profileImageLink: userDetails.profileImageLink || "null",
+        profileImageLink: userDetails.profileImageLink || null,
       };
     }
 
     if (authMethod === "google" && googleData) {
-      return {
-        name: `${googleData.name}` || "",
+      const profileData = {
+        name: googleData.name || "",
         email: googleData.email || "",
-        welcomeMessage: "Welcome to my profile",
-        dateFormat: "YYYY/MM/DD",
-        timeFormat: "12h",
-        timezone: "Asia/Kolkata",
-        profileImageLink:
-          googleData.profileImageLink || googleData.picture || null,
+        welcomeMessage: googleData.welcomeMessage || "Welcome to my profile",
+        dateFormat: googleData.dataFormat || "YYYY/MM/DD",
+        timeFormat: googleData.timeFormat || "12h",
+        timezone: googleData.timezone || "Asia/Kolkata",
+        profileImageLink: googleData.profileImageLink || googleData.picture,
       };
+      console.log("Google profile data exteracted : ", profileData);
+      return profileData;
     }
 
     // optional
@@ -72,7 +84,7 @@ export default function UserProfile() {
         name: microsoftData.name || "",
         email: microsoftData.email || "",
         welcomeMessage: "Welcome to my profile",
-        dataFormat: "YYYY/MM/DD",
+        dateFormat: "YYYY/MM/DD",
         timeFormat: "12h",
         timezone: "Asia/Kolkata",
         profileImageLink: microsoftData.profileImageLink || null,
@@ -90,19 +102,34 @@ export default function UserProfile() {
     };
   };
 
-  /*
-
-  */
+  const [profileData, setProfileData] = useState(extractProfileData());
 
   // Update time every minute
+
+  useEffect(() => {
+    const newProfileData = extractProfileData();
+    setProfileData(newProfileData);
+
+    if (newProfileData.profileImageLink) {
+      setPreviewImage(newProfileData.profileImageLink);
+    }
+    console.log("Profile Data changed: ", profileData);
+  }, [authMethod, googleData, userDetails, microsoftData]);
+
   useEffect(() => {
     updateCurrentTime();
     const interval = setInterval(() => {
       updateCurrentTime();
     }, 60000);
-
     return () => clearInterval(interval);
-  }, [profileData.timezone, profileData.timeFormat]);
+  }, [
+    profileData.timezone,
+    profileData.timeFormat,
+    authMethod,
+    userDetails,
+    googleData,
+    microsoftData,
+  ]);
 
   const updateCurrentTime = () => {
     const now = new Date();
@@ -130,7 +157,7 @@ export default function UserProfile() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfileData({ ...profileData, profileImage: file });
+      setProfileData({ ...profileData, profileImageLink: file });
 
       // Create preview
       const reader = new FileReader();
@@ -155,13 +182,16 @@ export default function UserProfile() {
 
       // Create FormData for file upload
       const formData = new FormData();
+
       Object.keys(profileData).forEach((key) => {
         formData.append(key, profileData[key]);
       });
+
       const formattedDate = formatDateByPattern(
         new Date(),
         profileData.dateFormat
       );
+
       formData.append("formattedDate", formattedDate);
       formData.append("token", token);
       formData.append("access_token", access_token);
@@ -181,7 +211,6 @@ export default function UserProfile() {
 
       if (response.status === 200) {
         alert("Profile updated successfully!");
-        alert("Profile updated successfully!");
 
         // Create an object with the updated profile data to save in Redux
         const updatedData = {
@@ -195,14 +224,14 @@ export default function UserProfile() {
 
         // If there's a new profile image, include it
         if (previewImage && previewImage !== "/api/placeholder/80/80") {
-          updatedData.profileImage = previewImage;
+          updatedData.profileImageLink = previewImage;
         }
 
         // Update Redux state with the new profile data
         // dispatch(updateUserProfile(updatedData)); // vikrant code
 
         if (authMethod === "local") {
-          dispatchEvent(
+          dispatch(
             updateUserProfile({
               ...updatedData,
               profileImageLink:
@@ -212,10 +241,23 @@ export default function UserProfile() {
             })
           );
         } else if (authMethod === "google") {
-          dispatchEvent(
+          dispatch(
             updateUserProfile({
               ...updatedData,
-              profileImageLink: previewImage !== "/api/place",
+              profileImageLink:
+                previewImage !== "/api/placeholder/80/80"
+                  ? previewImage
+                  : googleData.profileImageLink,
+            })
+          );
+        } else if (authMethod === "microsoft") {
+          dispatch(
+            updateUserProfile({
+              ...updatedData,
+              profileImageLink:
+                previewImage !== "/api/placeholder/80/80"
+                  ? previewImage
+                  : microsoftData.profileImageLink,
             })
           );
         }
@@ -229,6 +271,7 @@ export default function UserProfile() {
       setIsLoading(false);
     }
   };
+
   // Function to handle account deletion
   const handleDeleteAccount = async () => {
     try {
@@ -250,6 +293,24 @@ export default function UserProfile() {
         // Optional: Clear Redux or redirect
         // dispatch(logoutUser());
         // navigate("/goodbye");
+
+        /* my changes*/
+
+        // clear Redux state
+        dispatch(clearUserDetails());
+
+        // Purge redux-persist store
+        await persistor.purge();
+
+        // clear all auth token and cookies
+        clearAuthToken();
+
+        Cookies.remove("access_token"); // for google
+        Cookies.remove("refresh_token"); // for google
+
+        navigate("/"); // navigate to login page
+
+        /* till here*/
       } else {
         throw new Error("Failed to delete account.");
       }

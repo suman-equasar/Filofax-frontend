@@ -24,7 +24,11 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
-        ignoredPaths: ["user.userDetails.profileImage"],
+        ignoredPaths: [
+          "user.userDetails.profileImageLink",
+          "user.googleData.profileImageLink",
+          "user.microsoftData.profileImageLink",
+        ],
       },
     }),
 });

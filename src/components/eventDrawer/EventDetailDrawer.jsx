@@ -35,24 +35,21 @@ const EventDetailDrawer = ({ event, onClose }) => {
 
   const handleSaveChanges = async () => {
     try {
-      const eventUrl = import.meta.env.VITE_CALENDAR_AUTH_URL;
+      const eventUrl = import.meta.env.VITE_AVAILABILITY_URL;
       // const token = Cookies.get("token");
-      const aceess_token = Cookies.get("access_token");
+      const access_token = Cookies.get("access_token");
       const refresh_token = Cookies.get("refresh_token");
 
       if (!token || !access_token || !refresh_token)
         throw new Error("No token found. Please log in.");
 
       const response = await axios.post(
-        `${eventUrl}/create-event`,
+        `${eventUrl}/set`,
         {
           title: eventName,
           duration: eventDuration,
           location: location ? location.name : null,
           eventType: "One-on-One", // Static in this example
-          token,
-          access_token,
-          refresh_token,
           token,
           access_token,
           refresh_token,

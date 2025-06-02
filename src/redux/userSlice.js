@@ -18,6 +18,7 @@ const userSlice = createSlice({
       state.authMethod = "local";
     },
     setGoogleUser: (state, action) => {
+      console.log("Setting Google user data :", action.payload);
       state.googleData = action.payload;
       state.authMethod = "google";
     },
@@ -32,7 +33,7 @@ const userSlice = createSlice({
       state.userDetails = null;
       state.googleData = null;
       state.microsoftData = null; //optional
-      state.authMethod = null;
+      state.authMethod = "none";
     },
     updateUserProfile: (state, action) => {
       if (state.authMethod === "local") {

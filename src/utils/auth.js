@@ -28,13 +28,19 @@ export const setAuthToken = (token) => {
 
 export const clearAuthToken = () => {
   console.log("Clearing auth tokens from both cookie and localStorage");
-  Cookies.remove("token");
+  /* from here to */
+  Cookies.remove("token", { path: "/" });
   localStorage.removeItem("token");
+
+  Cookies.remove("access_token", { path: "/" });
+  Cookies.remove("refresh_token", { path: "/" });
+
+  localStorage.clear(); // clear all localStorage
+  /*till here */
 };
 
 export const extractTokenFromCookie = () => {
   const token = Cookies.get("token");
-
   const accessToken = Cookies.get("access_token");
   const refreshToken = Cookies.get("refresh_token");
 
