@@ -68,6 +68,20 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
         <div className="flex items-center space-x-2">
           <Clock className="h-5 w-5 text-[#A4CC02]" />
           <h3 className="font-medium text-gray-900">{event.title}</h3>
+
+          {/* Booking URL (visible if present) */}
+          {event.bookingUrl && (
+            <p className="text-sm text-blue-600 break-all mt-2">
+              <a
+                href={event.bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-blue-800"
+              >
+                {event.bookingUrl}
+              </a>
+            </p>
+          )}
         </div>
         <Switch
           checked={isActive}
@@ -215,7 +229,8 @@ EventCard.propTypes = {
   event: PropTypes.shape({
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
-    path: PropTypes.string.isRequired,
+    path: PropTypes.string,
+    bookingUrl: PropTypes.string,
     isActive: PropTypes.bool.isRequired,
   }).isRequired,
   onToggleActive: PropTypes.func,

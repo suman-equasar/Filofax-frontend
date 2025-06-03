@@ -13,7 +13,12 @@ import EventCard from "../../components/EventCard";
 import EventDetailDrawer from "../../components/eventDrawer/EventDetailDrawer";
 import Meetings from "./Meetings";
 import Availability from "./Availability";
-import { setAuthToken, isAuthenticated } from "../../utils/auth";
+import {
+  setAuthToken,
+  isAuthenticated,
+  extractTokenFromCookie,
+} from "../../utils/auth";
+import axios from "axios";
 
 // Sample event data - normally would come from API
 const initialEvents = [
@@ -27,12 +32,15 @@ const initialEvents = [
 
 const Dashboard = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [events, setEvents] = useState(initialEvents);
+  // const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
+  const { token, access_token, refresh_token } = extractTokenFromCookie(); // extract token from the cookies
   // Extract token from query string and store it properly
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -100,18 +108,47 @@ const Dashboard = () => {
   const EventTypeContent = () => (
     <>
       <div className="mb-8"></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            onToggleActive={handleToggleActive}
-            onClick={() => handleCardClick(event)}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-center text-gray-500">Loading events...</p>
+      ) : events.length === 0 ? (
+        <p className="text-center text-gray-500">No events available</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {events.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              onToggleActive={handleToggleActive}
+              onClick={() => handleCardClick(event)}
+            />
+          ))}
+        </div>
+      )}
     </>
   );
+
+  const dashboardBaseUrl = import.meta.env.VITE_DASHBOARD_URL;
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(
+          `${dashboardBaseUrl}/getAll-dashboard-event`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log("Fetched events from api :", response.data.events);
+        setEvents(response.data.events);
+      } catch (error) {
+        console.error("Failed to fetch the events from api ", error);
+      }
+      setLoading(false);
+    };
+    fetchEvents();
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-white">

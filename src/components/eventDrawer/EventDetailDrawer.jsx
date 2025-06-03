@@ -61,8 +61,9 @@ const EventDetailDrawer = ({ event, onClose }) => {
       const access_token = Cookies.get("access_token");
       const refresh_token = Cookies.get("refresh_token");
 
-      if (!token || !access_token || !refresh_token)
+      if (!token && !access_token && !refresh_token) {
         throw new Error("No token found. Please log in.");
+      }
 
       const response = await axios.post(
         `${eventUrl}/create-dashboard-event`,
