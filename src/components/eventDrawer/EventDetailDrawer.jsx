@@ -8,6 +8,7 @@ import AvailibilitySelector from "./AvailibilitySelector";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { extractTokenFromCookie } from "../../utils/auth";
+import { useSelector } from "react-redux";
 
 const backdropVariant = {
   hidden: { opacity: 0 },
@@ -21,9 +22,29 @@ const drawerVariant = {
 const { token, access_token, refresh_token } = extractTokenFromCookie();
 
 const EventDetailDrawer = ({ event, onClose }) => {
-  const [eventName, setEventName] = useState("New Meeting");
+  // const [eventName, setEventName] = useState("New Meeting");
+  const [title, setTitle] = useState("New Meeting");
   const [eventDuration, setEventDuration] = useState(15);
   const [location, setLocation] = useState(null);
+  const [availability, setAvailability] = useState({});
+
+  const { userDetails, googleData, microsoftData, authMethod } = useSelector(
+    (state) => state.user
+  );
+
+  let hostName = "";
+  let hostEmail = "";
+
+  if (authMethod === "local" && userDetails) {
+    hostName = userDetails.name || "";
+    hostEmail = userDetails.email || "";
+  } else if (authMethod === "google" && googleData) {
+    hostName = googleData.name || "";
+    hostEmail = googleData.email || "";
+  } else if (authMethod === "microsoft" && microsoftData) {
+    hostName = microsoftData.name || "";
+    hostEmail = microsoftData.email || "";
+  }
 
   const handleLocationChange = (selectedLocation) => {
     setLocation(selectedLocation);
@@ -35,8 +56,8 @@ const EventDetailDrawer = ({ event, onClose }) => {
 
   const handleSaveChanges = async () => {
     try {
-      const eventUrl = import.meta.env.VITE_AVAILABILITY_URL;
-      // const token = Cookies.get("token");
+      const eventUrl = import.meta.env.VITE_DASHBOARD_URL;
+
       const access_token = Cookies.get("access_token");
       const refresh_token = Cookies.get("refresh_token");
 
@@ -44,13 +65,15 @@ const EventDetailDrawer = ({ event, onClose }) => {
         throw new Error("No token found. Please log in.");
 
       const response = await axios.post(
-        `${eventUrl}/set`,
+        `${eventUrl}/create-dashboard-event`,
         {
-          title: eventName,
+          title: title,
           duration: eventDuration,
           location: location ? location.name : null,
           eventType: "One-on-One", // Static in this example
-          token,
+          availability_time: availability,
+          hostName,
+          hostEmail,
           access_token,
           refresh_token,
         },
@@ -108,8 +131,8 @@ const EventDetailDrawer = ({ event, onClose }) => {
                   </p>
                   <input
                     type="text"
-                    value={eventName}
-                    onChange={(e) => setEventName(e.target.value)}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     className="text-xl font-bold text-black mt-1 bg-transparent focus:outline-none border-b border-gray-300"
                   />
                 </div>
@@ -129,16 +152,14 @@ const EventDetailDrawer = ({ event, onClose }) => {
                   initialLocation={location}
                   onLocationChange={handleLocationChange}
                 />
-                <AvailibilitySelector />
+                <AvailibilitySelector setAvailability={setAvailability} />
                 <div className="py-4">
                   <p className="text-sm font-medium text-black mb-2">Host</p>
                   <div className="border border-gray-200 rounded-md px-3 py-2">
                     <p className="text-sm font-semibold text-black">
-                      Jason Jay
+                      {hostName}
                     </p>
-                    <p className="text-sm text-gray-400">
-                      vikrant.koundal@gmail.com
-                    </p>
+                    <p className="text-sm text-gray-400">{hostEmail}</p>
                   </div>
                 </div>
               </div>

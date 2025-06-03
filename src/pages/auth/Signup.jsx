@@ -185,7 +185,7 @@ export default function Signup() {
           </button>
 
           {/*  Sign Up with Microsoft */}
-          <button
+          {/* <button
             type="button"
             className="flex items-center justify-center w-full py-3 px-4 mb-6 border-[1.5px] border-[#121212e0] rounded-lg bg-white hover:bg-gray-50"
             onClick={handleMicrosoftSignUp}
@@ -198,7 +198,7 @@ export default function Signup() {
             <span className="text-sm font-semibold text-[#121212]">
               Sign Up with Microsoft
             </span>
-          </button>
+          </button> */}
 
           {/* Divider */}
           <div className="relative mt-6 mb-10">

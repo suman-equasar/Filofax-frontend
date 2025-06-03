@@ -41,9 +41,9 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, isMobile }) => {
           </Link>
 
           {/* Search Button */}
-          <button className="ml-auto p-1.5 rounded-full bg-[#CDF529]">
+          {/* <button className="ml-auto p-1.5 rounded-full bg-[#CDF529]">
             <Search className="h-4 w-4 text-gray-500" />
-          </button>
+          </button> */}
         </div>
 
         {/* Navigation */}
