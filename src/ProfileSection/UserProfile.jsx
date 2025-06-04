@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Menu } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
 import { clearUserDetails, updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
 import { clearAuthToken, extractTokenFromCookie } from "../utils/auth";
@@ -13,7 +14,9 @@ import {
 } from "../redux/userSlice";
 
 export default function UserProfile() {
+  const { toggleSidebar, isMobile } = useOutletContext();
   //token extracted from cookies
+
   const { token, access_token, refresh_token } = extractTokenFromCookie();
 
   const dispatch = useDispatch();
@@ -321,7 +324,19 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="max-w-2xl p-6 bg-white mt-12">
+    <div className="max-w-2xl p-6 bg-white mt-2 lg:mt-12 ">
+      {isMobile && (
+        <div className="flex items-center justify-between mb-4">
+          {" "}
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-md hover:bg-gray-100"
+          >
+            {" "}
+            <Menu className="h-5 w-5" />{" "}
+          </button>{" "}
+        </div>
+      )}
       <h1 className="text-xl font-medium mb-6">Account Details</h1>
 
       <div>

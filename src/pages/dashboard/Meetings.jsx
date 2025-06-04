@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Calendar, X } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
+import { Menu } from "lucide-react";
 
 export default function Meetings() {
+  const { toggleSidebar, isMobile } = useOutletContext();
   const [activeTab, setActiveTab] = useState("Upcoming");
   const [expandedEventIds, setExpandedEventIds] = useState("false");
 
@@ -64,6 +67,18 @@ export default function Meetings() {
 
   return (
     <div className=" max-w-7xl p-4 ">
+      {isMobile && (
+        <div className="flex items-center justify-between mb-4">
+          {" "}
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-md hover:bg-gray-100"
+          >
+            {" "}
+            <Menu className="h-5 w-5" />{" "}
+          </button>{" "}
+        </div>
+      )}
       <div className="flex justify-between items-center mt-11 mb-12 ">
         <h1 className="text-2xl text-[#000000] font-normal">Meetings</h1>
         <span className="text-gray-500">Displaying 3 of 3 Events</span>

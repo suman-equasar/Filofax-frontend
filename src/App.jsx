@@ -23,6 +23,8 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
+        <Route path="/booking/:eventId" element={<Booking />} />
+
         {/* Google Callback route for the dashboard redirection */}
 
         <Route path="/google/callback" element={<GoogleCallback />} />
@@ -66,7 +68,7 @@ function App() {
 
     // <BrowserRouter>
     //   <Routes>
-    //     <Route path="/" element={<Booking />} />
+    //
     //     <Route path="/user-detail" element={<UserDetail />} />
     //     <Route path="/user-schedule" element={<Schedule />} />
     //   </Routes>

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Clock, Calendar, X, Copy, Info, Plus } from "lucide-react";
+import { Clock, Calendar, X, Copy, Info, Plus, Menu } from "lucide-react";
 import axios from "axios";
+import { useOutletContext } from "react-router-dom";
 
 // ⏰ Generates time slots from 12:00 AM to 11:45 PM in 15-minute intervals
 const generateTimeOptions = () => {
@@ -17,6 +18,7 @@ const generateTimeOptions = () => {
 };
 
 export default function Availability() {
+  const { toggleSidebar, isMobile } = useOutletContext();
   const days = [
     { id: 1, short: "S", full: "Sunday" },
     { id: 2, short: "M", full: "Monday" },
@@ -35,32 +37,31 @@ export default function Availability() {
       dayId: day.id,
       available: day.id !== 1,
       timeSlots:
-        day.id !== 1
-          ? [{ id: 1, startTime: "9:00am", endTime: "5:00pm" }]
-          : [],
+        day.id !== 1 ? [{ id: 1, startTime: "9:00am", endTime: "5:00pm" }] : [],
     }))
   );
-const isOverlapping = (slot) => {
-  const sorted = [...slot].sort(
-    (a, b) =>
-      timeOptions.indexOf(a.startTime) - timeOptions.indexOf(b.startTime)
-  );
-  for (let i = 1; i < sorted.length; i++) {
-    if (
-      timeOptions.indexOf(sorted[i].startTime) <
-      timeOptions.indexOf(sorted[i - 1].endTime)
-    ) {
-      return true;
+  const isOverlapping = (slot) => {
+    const sorted = [...slot].sort(
+      (a, b) =>
+        timeOptions.indexOf(a.startTime) - timeOptions.indexOf(b.startTime)
+    );
+    for (let i = 1; i < sorted.length; i++) {
+      if (
+        timeOptions.indexOf(sorted[i].startTime) <
+        timeOptions.indexOf(sorted[i - 1].endTime)
+      ) {
+        return true;
+      }
     }
-  }
-  return false;
-};
+    return false;
+  };
   const saveAvailability = async () => {
-
     // Validate time slots for overlaps
     for (const day of weeklyHours) {
       if (day.available && isOverlapping(day.timeSlots)) {
-        alert(`Time slots for ${days.find((d) => d.id === day.dayId).full} overlap.`);
+        alert(
+          `Time slots for ${days.find((d) => d.id === day.dayId).full} overlap.`
+        );
         return;
       }
     }
@@ -69,7 +70,10 @@ const isOverlapping = (slot) => {
 
     weeklyHours.forEach((day, index) => {
       formData.append(`availability[${index}][dayId]`, day.dayId.toString());
-      formData.append(`availability[${index}][available]`, day.available.toString());
+      formData.append(
+        `availability[${index}][available]`,
+        day.available.toString()
+      );
 
       day.timeSlots.forEach((slot, slotIndex) => {
         formData.append(
@@ -162,7 +166,9 @@ const isOverlapping = (slot) => {
     setWeeklyHours(
       weeklyHours.map((day) => {
         if (day.dayId === dayId) {
-          const updatedSlots = day.timeSlots.filter((slot) => slot.id !== slotId);
+          const updatedSlots = day.timeSlots.filter(
+            (slot) => slot.id !== slotId
+          );
           return {
             ...day,
             timeSlots: updatedSlots,
@@ -176,6 +182,18 @@ const isOverlapping = (slot) => {
 
   return (
     <div className="max-w-3xl p-6">
+      {isMobile && (
+        <div className="flex items-center justify-between mb-4">
+          {" "}
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-md hover:bg-gray-100"
+          >
+            {" "}
+            <Menu className="h-5 w-5" />{" "}
+          </button>{" "}
+        </div>
+      )}
       <h1 className="text-2xl font-medium mb-6">Availability</h1>
 
       <div className="rounded-lg p-8 border-2 border-gray-200 bg-white shadow-sm">
@@ -235,7 +253,12 @@ const isOverlapping = (slot) => {
                           <select
                             value={slot.startTime}
                             onChange={(e) =>
-                              updateTime(day.dayId, slot.id, "startTime", e.target.value)
+                              updateTime(
+                                day.dayId,
+                                slot.id,
+                                "startTime",
+                                e.target.value
+                              )
                             }
                             className="bg-gray-100 px-3 py-1 rounded-md"
                           >
@@ -251,7 +274,12 @@ const isOverlapping = (slot) => {
                           <select
                             value={slot.endTime}
                             onChange={(e) =>
-                              updateTime(day.dayId, slot.id, "endTime", e.target.value)
+                              updateTime(
+                                day.dayId,
+                                slot.id,
+                                "endTime",
+                                e.target.value
+                              )
                             }
                             className="bg-gray-100 px-3 py-1 rounded-md"
                           >
@@ -262,8 +290,13 @@ const isOverlapping = (slot) => {
                             ))}
                           </select>
 
-                          <button onClick={() => removeTimeSlot(day.dayId, slot.id)}>
-                            <X size={18} className="text-gray-400 hover:text-red-500" />
+                          <button
+                            onClick={() => removeTimeSlot(day.dayId, slot.id)}
+                          >
+                            <X
+                              size={18}
+                              className="text-gray-400 hover:text-red-500"
+                            />
                           </button>
 
                           {index === day.timeSlots.length - 1 && (

@@ -68,20 +68,6 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
         <div className="flex items-center space-x-2">
           <Clock className="h-5 w-5 text-[#A4CC02]" />
           <h3 className="font-medium text-gray-900">{event.title}</h3>
-
-          {/* Booking URL (visible if present) */}
-          {event.bookingUrl && (
-            <p className="text-sm text-blue-600 break-all mt-2">
-              <a
-                href={event.bookingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-blue-800"
-              >
-                {event.bookingUrl}
-              </a>
-            </p>
-          )}
         </div>
         <Switch
           checked={isActive}
@@ -92,6 +78,19 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
       </div>
 
       <div className="text-sm text-gray-500 mb-4 truncate">{event.path}</div>
+      {/* Booking URL (visible if present) */}
+      {event.bookingUrl && (
+        <p className="text-sm text-blue-600 break-all mt-2">
+          <a
+            href={event.bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-sm text-gray-500"
+          >
+            {event.bookingUrl}
+          </a>
+        </p>
+      )}
 
       <div
         className="flex justify-end space-x-2"

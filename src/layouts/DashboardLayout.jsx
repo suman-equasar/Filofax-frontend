@@ -20,6 +20,13 @@ const DashboardLayout = () => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  // Close sidebar on route change for mobile and Tabs
+  useEffect(() => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [location, isMobile]);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
