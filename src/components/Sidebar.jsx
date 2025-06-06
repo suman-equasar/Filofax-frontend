@@ -111,6 +111,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, isMobile }) => {
               >
                 <div className="mr-3 w-6">
                   <LogOut className="h-5 w-5 text-gray-400" />
+                  
                 </div>
                 Logout
               </Link>
