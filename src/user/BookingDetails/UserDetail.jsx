@@ -1,9 +1,23 @@
 import React, { useState } from "react";
 import { Clock, Video, ArrowLeft, Calendar, Earth } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const UserDetail = () => {
+  const locationObj = useLocation();
+
   const navigate = useNavigate();
+
+  const {
+    selectedSlot,
+    selectedDate,
+    duration,
+    title,
+    location,
+    eventId,
+    hostName,
+    hostEmail,
+  } = locationObj.state || {};
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,7 +57,7 @@ const UserDetail = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const isNameValid = validateName(formData.name);
@@ -57,8 +71,44 @@ const UserDetail = () => {
       return;
     }
 
+    try {
+      const payload = {
+        attendeeName: formData.name,
+        attendeeEmail: formData.email,
+        eventId: eventId,
+        title: title,
+        slot: selectedSlot,
+        date: selectedDate,
+        duration,
+        location,
+        hostName,
+        hostEmail,
+      };
+
+      const bookingUrl = import.meta.env.VITE_BOOKING_URL;
+      await axios.post(`${bookingUrl}/booking`, payload);
+
+      navigate("/user-schedule", {
+        state: {
+          event: {
+            eventId,
+            title,
+            date: selectedDate,
+            duration,
+            slot: selectedSlot,
+            hostName,
+            hostEmail,
+            location,
+            attendee_name: formData.name,
+            attendee_email: formData.email,
+          },
+        },
+      });
+    } catch (error) {
+      console.log("Error while booking the event", error);
+    }
+
     // If valid, navigate
-    navigate("/user-schedule");
   };
 
   return (
@@ -69,25 +119,32 @@ const UserDetail = () => {
           <div className="flex items-center mb-4">
             <ArrowLeft />
           </div>
-          <span className="text-sm font-medium text-gray-600">ACME Inc.</span>
+          <span className="text-sm font-medium text-gray-600">FiloFax</span>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-            Ok
+            {title}
           </h1>
           <div className="space-y-3 mb-6">
             <div className="flex items-center text-gray-600">
               <Clock size={18} className="mr-3" />
-              <span className="text-sm">15 min</span>
+              <span className="text-sm">{duration || 30} min</span>
             </div>
             <div className="flex items-center text-gray-600">
               <Video size={18} className="mr-3" />
               <span className="text-sm">
-                Web conferencing details provided upon confirmation.
+                Web conferencing details provided upon confirmation for{" "}
+                {location || "TBD"} platform
               </span>
             </div>
             <div className="flex items-center text-gray-600">
               <Calendar size={18} className="mr-3" />
               <span className="text-sm">
-                9:30 AM - 9:45 AM, Friday, May 26, 2025.
+                {selectedSlot},{" "}
+                {new Date(selectedDate).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
               </span>
             </div>
             <div className="flex items-center text-gray-600">
@@ -203,5 +260,4 @@ const UserDetail = () => {
     </div>
   );
 };
-
 export default UserDetail;

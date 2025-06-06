@@ -22,11 +22,14 @@ const drawerVariant = {
 const { token, access_token, refresh_token } = extractTokenFromCookie();
 
 const EventDetailDrawer = ({ event, onClose }) => {
+  const { token, access_token, refresh_token, zoom_access_token } =
+    extractTokenFromCookie();
   // const [eventName, setEventName] = useState("New Meeting");
   const [title, setTitle] = useState("New Meeting");
   const [eventDuration, setEventDuration] = useState(15);
   const [location, setLocation] = useState(null);
   const [availability, setAvailability] = useState({});
+  const [link, setLink] = useState({});
 
   const { userDetails, googleData, microsoftData, authMethod } = useSelector(
     (state) => state.user
@@ -58,8 +61,8 @@ const EventDetailDrawer = ({ event, onClose }) => {
     try {
       const eventUrl = import.meta.env.VITE_DASHBOARD_URL;
 
-      const access_token = Cookies.get("access_token");
-      const refresh_token = Cookies.get("refresh_token");
+      // const access_token = Cookies.get("access_token");
+      // const refresh_token = Cookies.get("refresh_token");
 
       if (!token && !access_token && !refresh_token) {
         throw new Error("No token found. Please log in.");
@@ -70,13 +73,14 @@ const EventDetailDrawer = ({ event, onClose }) => {
         {
           title: title,
           duration: eventDuration,
-          location: location ? location.name : null,
+          location: location ? location.id : null,
           eventType: "One-on-One", // Static in this example
           availability_time: availability,
           hostName,
           hostEmail,
           access_token,
           refresh_token,
+          zoom_access_token,
         },
         {
           headers: {
@@ -85,9 +89,11 @@ const EventDetailDrawer = ({ event, onClose }) => {
         }
       );
 
-      console.log("Event details saved:", response.data);
+      // console.log("Event details saved:", response.data);
       alert("Changes saved successfully!");
 
+      const data = response.data;
+      setLink(data.bookingUrl);
       if (onClose) onClose();
     } catch (error) {
       console.error("Failed to save event details:", error);

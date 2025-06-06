@@ -3,21 +3,26 @@ import meet from "../../assets/meet.svg";
 import zoom from "../../assets/zoom.svg";
 import { ChevronDown, ChevronLeft } from "lucide-react";
 import { extractTokenFromCookie } from "../../utils/auth";
+import axios from "axios";
+import { toast } from "react-toastify";
+import ClipLoader from "react-spinners/ClipLoader";
+import Cookies from "js-cookie";
 
 const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [location, setLocation] = useState(initialLocation);
   const [loading, setLoading] = useState(false);
+  const spinnerStyle = {
+    display: "block",
+    margin: "0 auto",
+  };
 
-  const { token, access_token, refresh_token } = extractTokenFromCookie();
-
-  // console.log("Token from cookie:", token);
-  // console.log("Access Token from cookie:", accessToken);
-  // console.log("Refresh Token from cookie:", refreshToken);
+  const { token, access_token, refresh_token, zoom_access_token } =
+    extractTokenFromCookie();
 
   const locationOptions = [
     {
-      id: "google_meet",
+      id: "google-meet",
       name: "Google Meet",
       icon: <img src={meet} alt="Google Meet" className="w-6 h-6" />,
     },
@@ -30,51 +35,72 @@ const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
 
   const toggleOptions = () => setShowOptions(!showOptions);
 
-  const handleGoogleAuth = async () => {
-    try {
-      if (!token && !access_token && !refresh_token) {
-        console.error("No token found. Please log in.");
-        return false;
+  const openPopup = (url) => {
+    const popup = window.open(url, "_blank", "width=500,height=600");
+    if (!popup) return;
 
-        setLoading(true);
-        const url = `${import.meta.env.VITE_BASE_AUTH_URL}/google`;
-
-        const res = await fetch(url, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        const data = await res.json();
-
-        if (data?.alreadyLinked) {
-          // User already linked Google Calendar
-          return true;
-        } else if (data?.authUrl) {
-          // Begin OAuth flow
-          const popup = window.open(
-            data.authUrl,
-            "_blank",
-            "width=500,height=600"
-          );
-
-          if (popup) {
-            const interval = setInterval(() => {
-              if (popup.closed) {
-                clearInterval(interval);
-                window.location.reload(); // Reload or refetch status
-              }
-            }, 1000);
-          }
-
-          return false; // Don’t proceed with selecting location yet
-        } else {
-          console.error("Unexpected response:", data);
-          return false;
-        }
+    toast.info("Waiting for Google authentication to complete...");
+    const interval = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(interval);
+        toast.success("Google connected successfully!");
+        window.location.reload(); // reloads to get token from cookie
       }
-      return true; // User is already authenticated
+    }, 1000);
+  };
+
+  const handleGoogleAuth = async () => {
+    if (access_token) return true;
+    toast.info("Please connect your Google account first");
+    try {
+      setLoading(true);
+
+      // Directly open the backend OAuth URL in popup
+      const googleAuthUrl = `${import.meta.env.VITE_BASE_AUTH_URL}/google`;
+      openPopup(googleAuthUrl);
+
+      //  wait for popup to close and tokens to be set in cookies
+      return false;
     } catch (err) {
-      console.error("Error during Google auth:", err);
+      console.error("Google auth error:", err);
+      toast.error("Something went wrong during Google connection");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleZoomAuth = async () => {
+    if (zoom_access_token) return true;
+
+    try {
+      setLoading(true);
+
+      const url = `${import.meta.env.VITE_ZOOM_BASE_URL}/connect`;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const res = await axios.get(url, {
+        withCredentials: true,
+        headers,
+      });
+      const data = await res.data;
+      const zoom_access_token = data.zoom_access_token;
+      console.log("Zoom cookies", zoom_access_token);
+
+      Cookies.set("zoom_access_token", zoom_access_token);
+      if (data.success) {
+        toast.success("Zoom connected successfully!");
+        // alert("Zoom connected successfully!");
+        return true;
+      } else {
+        toast.error("Zoom connection failed");
+        return false;
+      }
+    } catch (err) {
+      console.error("Zoom auth error:", err);
+      toast.error("Zoom connextion failed. Please try again to connect");
       return false;
     } finally {
       setLoading(false);
@@ -82,15 +108,34 @@ const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
   };
 
   const handleOptionClick = async (option) => {
-    if (option.id === "google_meet") {
-      const linked = await handleGoogleAuth();
-      if (!linked) return;
+    let isConnected = false;
+    if (option.id === "google-meet") {
+      isConnected = await handleGoogleAuth();
+      if (!isConnected) return;
+    } else if (option.id === "zoom") {
+      isConnected = await handleZoomAuth();
+      if (!isConnected) return;
     }
 
     setLocation(option);
-    if (onLocationChange) onLocationChange(option);
     setShowOptions(false);
+    if (onLocationChange) onLocationChange(option);
   };
+
+  // 🔥 SPINNER UI — SHOW THIS IF LOADING
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <ClipLoader
+          color="#10B981"
+          loading={loading}
+          cssOverride={spinnerStyle}
+          size={35}
+        />
+        <p className="ml-3 text-sm text-gray-600">Connecting to Google...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">

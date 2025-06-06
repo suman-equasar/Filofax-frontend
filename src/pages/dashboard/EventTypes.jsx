@@ -23,10 +23,10 @@ const EventTypes = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const dashboardBaseUrl = import.meta.env.VITE_DASHBOARD_URL;
   const [loading, setLoading] = useState(true);
-  const { token, accesss_token, refresh_token } = extractTokenFromCookie(); // extract token details from cookies
+  const { token, access_token, refresh_token } = extractTokenFromCookie(); // extract token details from cookies
 
   console.log(`Token in eventType page : ${token}`);
-  console.log(`Access Token in eventType page : ${accesss_token}`);
+  console.log(`Access Token in eventType page : ${access_token}`);
   console.log(`Refresh Token in eventType page : ${refresh_token}`);
   const handleCardClick = (event) => {
     setSelectedEvent(event);

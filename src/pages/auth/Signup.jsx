@@ -123,10 +123,13 @@ export default function Signup() {
 
       const { token, refreshToken } = response.data;
       // Store the token from the response
-      if (response.data?.token) {
-        const success = setAuthToken(response.data.token);
+      // if (response.data?.token) {
+      if (token) {
+        // const success = setAuthToken(response.data.token);
+        const success = setAuthToken(token);
         if (success) {
-          navigate("/dashboard");
+          // navigate("/dashboard");
+          navigate("/");
           return;
         }
       }

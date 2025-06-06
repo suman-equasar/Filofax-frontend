@@ -1,35 +1,107 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Time = ({ isOpen, onClose, date }) => {
+const Time = ({
+  isOpen,
+  onClose,
+  date,
+  availability_time,
+  duration,
+  location,
+  eventId,
+  title,
+  hostName,
+  hostEmail,
+}) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const navigate = useNavigate();
 
   const handleNextClick = (slot) => {
     console.log("Selected slot:", slot); // Optional logging
-    navigate("/user-detail"); // ⬅️ navigate to UserDetail page
+    navigate("/user-detail", {
+      state: {
+        selectedSlot: slot,
+        selectedDate: date,
+        duration,
+        location,
+        title,
+        eventId,
+        hostEmail,
+        hostName,
+      },
+    }); // ⬅️ navigate to UserDetail page
   };
 
+  // parsing the time format from 24 hr to 12 hr
+  const parseTime = (timeStr) => {
+    const [time, modifier] = timeStr
+      .toLowerCase()
+      .split(/(am|pm)/)
+      .filter(Boolean);
+    let [hours, minutes] = time.split(":").map(Number);
+    if (modifier === "pm" && hours !== 12) hours += 12;
+    if (modifier === "am" && hours === 12) hours = 0;
+    return { hours, minutes };
+  };
+
+  // generate the timeSlots according to host availability
   const generateTimeSlots = () => {
+    if (!availability_time || !date) return [];
+
+    const weekday = new Date(date).toLocaleDateString("en-US", {
+      weekday: "short",
+    });
+
+    const daySlots = availability_time[weekday];
+    if (!daySlots || !Array.isArray(daySlots)) return [];
+
     const slots = [];
-    let hour = 9;
-    let minute = 0;
 
-    while (hour < 17 || (hour === 17 && minute === 0)) {
-      const formattedHour = hour > 12 ? hour - 12 : hour;
-      const ampm = hour >= 12 ? "PM" : "AM";
-      const formattedMinute = minute.toString().padStart(2, "0");
-      slots.push(`${formattedHour}:${formattedMinute} ${ampm}`);
+    for (const range of daySlots) {
+      const { start, end } = range;
+      const startTime = parseTime(start);
+      const endTime = parseTime(end);
 
-      minute += 30;
-      if (minute === 60) {
-        hour += 1;
-        minute = 0;
+      let currentTime = new Date(); // current time
+      currentTime.setHours(startTime.hours, startTime.minutes, 0, 0);
+
+      const endDT = new Date(); // ending time
+      endDT.setHours(endTime.hours, endTime.minutes, 0, 0);
+
+      while (currentTime < endDT) {
+        const hrs = currentTime.getHours();
+        const mins = currentTime.getMinutes();
+        const formattedHours = hrs % 12 === 0 ? 12 : hrs % 12;
+        const ampm = hrs >= 12 ? "PM" : "AM";
+        const formattedMinute = mins.toString().padStart(2, "0");
+        slots.push(`${formattedHours}:${formattedMinute} ${ampm}`);
+        currentTime.setMinutes(currentTime.getMinutes() + 30);
       }
     }
-
     return slots;
   };
+
+  // vikrant code
+  // const generateTimeSlots = () => {
+  //   const slots = [];
+  //   let hour = 9;
+  //   let minute = 0;
+
+  //   while (hour < 17 || (hour === 17 && minute === 0)) {
+  //     const formattedHour = hour > 12 ? hour - 12 : hour;
+  //     const ampm = hour >= 12 ? "PM" : "AM";
+  //     const formattedMinute = minute.toString().padStart(2, "0");
+  //     slots.push(`${formattedHour}:${formattedMinute} ${ampm}`);
+
+  //     minute += 30;
+  //     if (minute === 60) {
+  //       hour += 1;
+  //       minute = 0;
+  //     }
+  //   }
+
+  //   return slots;
+  // };
 
   const formatDateWithDay = (dateStr) => {
     const [year, month, day] = dateStr.split("-").map(Number);

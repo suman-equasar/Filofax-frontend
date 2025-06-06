@@ -43,10 +43,12 @@ export const extractTokenFromCookie = () => {
   const token = Cookies.get("token");
   const accessToken = Cookies.get("access_token");
   const refreshToken = Cookies.get("refresh_token");
+  const zoom_access_token = Cookies.get("zoom_access_token");
 
   return {
     token: token || null,
     access_token: accessToken || null,
     refresh_token: refreshToken || null,
+    zoom_access_token: zoom_access_token || null,
   };
 };

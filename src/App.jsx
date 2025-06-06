@@ -23,8 +23,10 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
+        {/* Public slot booking Routes */}
         <Route path="/booking/:eventId" element={<Booking />} />
-
+        <Route path="/user-detail" element={<UserDetail />} />
+        <Route path="/user-schedule" element={<Schedule />} />
         {/* Google Callback route for the dashboard redirection */}
 
         <Route path="/google/callback" element={<GoogleCallback />} />
@@ -68,10 +70,7 @@ function App() {
 
     // <BrowserRouter>
     //   <Routes>
-    //
-    //     <Route path="/user-detail" element={<UserDetail />} />
-    //     <Route path="/user-schedule" element={<Schedule />} />
-    //   </Routes>
+    // //   </Routes>
     // </BrowserRouter>
   );
 }
