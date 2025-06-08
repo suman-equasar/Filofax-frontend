@@ -6,7 +6,8 @@ import { Menu } from "lucide-react";
 export default function Meetings() {
   const { toggleSidebar, isMobile } = useOutletContext();
   const [activeTab, setActiveTab] = useState("Upcoming");
-  const [expandedEventIds, setExpandedEventIds] = useState("false");
+  // const [expandedEventIds, setExpandedEventIds] = useState("false");
+  const [expandedEventIds, setExpandedEventIds] = useState([]);
 
   const toggleEventDetails = (eventId) => {
     setExpandedEventIds((prev) =>
@@ -92,11 +93,12 @@ export default function Meetings() {
             {["Upcoming", "Pending", "Past"].map((tab) => (
               <button
                 key={tab}
-                className={`px-8 py-3 font-normal text-sm ${
-                  tab === activeTab
-                    ? "border-b-2 border-[#A4CC02] text-[#000000]"
-                    : "text-[#000000]"
-                }`}
+                className={`px-8 py-3 font-normal text-sm ${tab === activeTab
+                  ? "border-b-2 border-[#A4CC02] text-[#000000]"
+                  : "text-[#000000]"
+                  }`}
+
+
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
@@ -117,9 +119,8 @@ export default function Meetings() {
         {Object.entries(eventsByDate).map(([date, dateEvents]) => (
           <div key={date} className="mb-4">
             <div
-              className={`p-3 ${
-                dateEvents[0].isToday ? "bg-[#0F575C2B]" : "bg-[#0F575C2B]"
-              }`}
+              className={`p-3 ${dateEvents[0].isToday ? "bg-[#0F575C2B]" : "bg-[#0F575C2B]"
+                }`}
             >
               <div className="flex justify-between items-center">
                 <span className="font-light">{date}</span>

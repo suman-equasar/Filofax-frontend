@@ -132,7 +132,7 @@ const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
           cssOverride={spinnerStyle}
           size={35}
         />
-        <p className="ml-3 text-sm text-gray-600">Connecting to Google...</p>
+        <p className="ml-3 text-sm text-gray-600">Connecting to Zoom...</p>
       </div>
     );
   }

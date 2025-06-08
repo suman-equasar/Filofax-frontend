@@ -1,24 +1,14 @@
-import { useState, useEffect, useRef } from "react";
-import { Pencil, Menu } from "lucide-react";
+import axios from "axios";
+import { Menu, Pencil } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux"; // Import Redux hooks
 import { useOutletContext } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
-import { clearUserDetails, updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
-import { clearAuthToken, extractTokenFromCookie } from "../utils/auth";
-import axios from "axios";
 import { persistor } from "../redux/store";
-
-import {
-  setUserDetails,
-  setGoogleUser,
-  setMicrosoftUser,
-} from "../redux/userSlice";
-import { updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
+import { clearUserDetails, updateUserProfile } from "../redux/userSlice"; // Adjust path to your userSlice file
 import { extractTokenFromCookie } from "../utils/auth";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import axios from "axios";
-import { clearUserDetails } from "../redux/userSlice";
-import { persistor } from "../redux/store"; // <-- import this
+
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 export default function UserProfile() {
   const { toggleSidebar, isMobile } = useOutletContext();
@@ -37,7 +27,7 @@ export default function UserProfile() {
 
   const navigate = useNavigate(); // Initialize useNavigate for navigation
 
-  const { token, acesss_token, refresh_token } = extractTokenFromCookie();
+  const { token, access_token, refresh_token } = extractTokenFromCookie();
 
   console.log("Token from cookie:", token);
   console.log("Access Token from cookie:", access_token);

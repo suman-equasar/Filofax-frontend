@@ -11,6 +11,7 @@ const Schedule = () => {
   const { state } = useLocation();
 
   const event = state?.event;
+  console.log("data coming after book event",event)
 
   if (!event) {
     return (

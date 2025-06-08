@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Clock, Phone } from "lucide-react";
+import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Required for layout, we'll override styles
-import { Clock, Phone } from "lucide-react";
+import { useParams } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 import Time from "./Time";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import { extractTokenFromCookie } from "../../utils/auth";
 
 const Booking = () => {
   const { eventId } = useParams();
@@ -27,6 +26,8 @@ const Booking = () => {
           params: { eventId: eventId },
         });
         setEvent(response.data.event);
+        console.log("event.userId", response.data.event.userId);
+        console.log("event.eventId", eventId);
       } catch (error) {
         console.error(
           `Error fetching event for this eventId : ${eventId}`,
@@ -54,9 +55,8 @@ const Booking = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="relative w-full max-w-5xl">
         <div
-          className={`bg-white rounded-lg shadow-lg overflow-hidden w-full flex flex-col md:flex-row  transition-transform duration-300 ${
-            drawerOpen ? "md:-translate-x-40" : ""
-          }`}
+          className={`bg-white rounded-lg shadow-lg overflow-hidden w-full flex flex-col md:flex-row  transition-transform duration-300 ${drawerOpen ? "md:-translate-x-40" : ""
+            }`}
         >
           {/* Left Panel */}
           <div className="w-full md:w-1/2 p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
@@ -133,6 +133,7 @@ const Booking = () => {
             eventId={eventId}
             hostName={event.hostName}
             hostEmail={event.hostEmail}
+            hostId={event.userId} // This must not be undefined
           />
         )}
       </div>

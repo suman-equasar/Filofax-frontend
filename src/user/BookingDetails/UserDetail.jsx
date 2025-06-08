@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Clock, Video, ArrowLeft, Calendar, Earth } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ArrowLeft, Calendar, Clock, Earth, Video } from "lucide-react";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const UserDetail = () => {
   const locationObj = useLocation();
@@ -17,16 +17,21 @@ const UserDetail = () => {
     eventId,
     hostName,
     hostEmail,
+    hostId,
   } = locationObj.state || {};
 
+  console.log("host id in user detail :", hostId);
+  console.log("event id in user detail :", eventId);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    notes:""
   });
 
   const [errors, setErrors] = useState({
     name: "",
     email: "",
+
   });
 
   const validateName = (name) => {
@@ -73,16 +78,18 @@ const UserDetail = () => {
 
     try {
       const payload = {
-        attendeeName: formData.name,
-        attendeeEmail: formData.email,
         eventId: eventId,
         title: title,
-        slot: selectedSlot,
         date: selectedDate,
+        slot: selectedSlot,
         duration,
         location,
+        hostId,
         hostName,
         hostEmail,
+        attendeeName: formData.name,
+        attendeeEmail: formData.email,
+        attendee_notes:formData.notes,
       };
 
       const bookingUrl = import.meta.env.VITE_BOOKING_URL;
@@ -98,9 +105,11 @@ const UserDetail = () => {
             slot: selectedSlot,
             hostName,
             hostEmail,
+            hostId,
             location,
-            attendee_name: formData.name,
-            attendee_email: formData.email,
+            attendeeName: formData.name,
+            attendeeEmail: formData.email,
+            attendeeNotes:formData.notes
           },
         },
       });
@@ -171,11 +180,9 @@ const UserDetail = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full border ${
-                  errors.name ? "border-red-500" : "border-gray-300"
-                } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${
-                  errors.name ? "focus:ring-red-400" : "focus:ring-blue-500"
-                }`}
+                className={`w-full border ${errors.name ? "border-red-500" : "border-gray-300"
+                  } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${errors.name ? "focus:ring-red-400" : "focus:ring-blue-500"
+                  }`}
                 placeholder="Enter your name"
               />
               {errors.name && (
@@ -193,11 +200,9 @@ const UserDetail = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${
-                  errors.email ? "focus:ring-red-400" : "focus:ring-blue-500"
-                }`}
+                className={`w-full border ${errors.email ? "border-red-500" : "border-gray-300"
+                  } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${errors.email ? "focus:ring-red-400" : "focus:ring-blue-500"
+                  }`}
                 placeholder="Enter your email"
               />
               {errors.email && (
@@ -220,7 +225,7 @@ const UserDetail = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Please share anything that will help prepare for our meeting.
               </label>
-              <textarea
+              <textarea name="notes" value={formData.notes} onChange={handleChange}
                 rows="4"
                 className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Additional details"
@@ -234,7 +239,7 @@ const UserDetail = () => {
                 href="#"
                 className="text-blue-600 font-semibold hover:underline"
               >
-                Calendly’s Terms of Use
+                FiloFax’s Terms of Use
               </a>{" "}
               and{" "}
               <a

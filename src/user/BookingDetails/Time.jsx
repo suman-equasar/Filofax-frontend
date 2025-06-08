@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Time = ({
@@ -8,28 +8,31 @@ const Time = ({
   availability_time,
   duration,
   location,
-  eventId,
   title,
   hostName,
   hostEmail,
+  hostId,
+  eventId,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const navigate = useNavigate();
-
+  console.log("Host id in time :", hostId);
+  console.log("Event id in time :", eventId);
   const handleNextClick = (slot) => {
-    console.log("Selected slot:", slot); // Optional logging
     navigate("/user-detail", {
       state: {
+        eventId,
         selectedSlot: slot,
         selectedDate: date,
         duration,
         location,
-        title,
         eventId,
-        hostEmail,
+        title,
         hostName,
+        hostEmail,
+        hostId, // <-- Make sure this is included!
       },
-    }); // ⬅️ navigate to UserDetail page
+    });
   };
 
   // parsing the time format from 24 hr to 12 hr
@@ -116,9 +119,8 @@ const Time = ({
     <>
       {/* Overlay control*/}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden ${
-          isOpen ? "block" : "hidden"
-        }`}
+        className={`fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden ${isOpen ? "block" : "hidden"
+          }`}
         onClick={onClose}
       ></div>
 
@@ -166,11 +168,10 @@ h-[calc(100%-80px)] max-h-[calc(100%-80px)]"
               <button
                 onClick={() => setSelectedIndex(index)}
                 className={`text-left border rounded p-2 text-sm
-transition-all duration-200 flex-shrink-0 ${
-                  selectedIndex === index
+transition-all duration-200 flex-shrink-0 ${selectedIndex === index
                     ? "bg-gray-800 text-white border-gray-800 w-28"
                     : "border-blue-500 text-blue-500 hover:bg-blue-100 flex-1"
-                }`}
+                  }`}
               >
                 {slot}
               </button>
