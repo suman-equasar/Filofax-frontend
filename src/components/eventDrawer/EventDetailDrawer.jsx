@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
@@ -6,7 +6,6 @@ import DurationSelector from "./DurationSelector";
 import LocationSelector from "./LocationSelector";
 import AvailibilitySelector from "./AvailibilitySelector";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { extractTokenFromCookie } from "../../utils/auth";
 import { useSelector } from "react-redux";
 
@@ -19,17 +18,16 @@ const drawerVariant = {
   hidden: { x: "100%" },
   visible: { x: 0 },
 };
-const { token, access_token, refresh_token } = extractTokenFromCookie();
 
 const EventDetailDrawer = ({ event, onClose }) => {
   const { token, access_token, refresh_token, zoom_access_token } =
     extractTokenFromCookie();
-  // const [eventName, setEventName] = useState("New Meeting");
+
   const [title, setTitle] = useState("New Meeting");
   const [eventDuration, setEventDuration] = useState(15);
   const [location, setLocation] = useState(null);
   const [availability, setAvailability] = useState({});
-  const [link, setLink] = useState({});
+  const [link, setLink] = useState(null);
 
   const { userDetails, googleData, microsoftData, authMethod } = useSelector(
     (state) => state.user
@@ -49,6 +47,30 @@ const EventDetailDrawer = ({ event, onClose }) => {
     hostEmail = microsoftData.email || "";
   }
 
+  useEffect(() => {
+    if (event) {
+      setTitle(event.title || "New Meeting");
+      setEventDuration(event.duration || 15);
+      setLocation(
+        event.location
+          ? {
+              id:
+                event.location.toLowerCase().includes("google") ||
+                event.location.toLowerCase().includes("meet")
+                  ? "google_meet"
+                  : "zoom",
+              name:
+                event.location.toLowerCase().includes("google") ||
+                event.location.toLowerCase().includes("meet")
+                  ? "Google Meet"
+                  : "Zoom",
+            }
+          : null
+      );
+      setAvailability(event.availability_time || {});
+    }
+  }, [event]);
+
   const handleLocationChange = (selectedLocation) => {
     setLocation(selectedLocation);
   };
@@ -61,9 +83,6 @@ const EventDetailDrawer = ({ event, onClose }) => {
     try {
       const eventUrl = import.meta.env.VITE_DASHBOARD_URL;
 
-      // const access_token = Cookies.get("access_token");
-      // const refresh_token = Cookies.get("refresh_token");
-
       if (!token && !access_token && !refresh_token) {
         throw new Error("No token found. Please log in.");
       }
@@ -71,10 +90,10 @@ const EventDetailDrawer = ({ event, onClose }) => {
       const response = await axios.post(
         `${eventUrl}/create-dashboard-event`,
         {
-          title: title,
+          title,
           duration: eventDuration,
           location: location ? location.id : null,
-          eventType: "One-on-One", // Static in this example
+          eventType: "One-on-One",
           availability_time: availability,
           hostName,
           hostEmail,
@@ -89,11 +108,11 @@ const EventDetailDrawer = ({ event, onClose }) => {
         }
       );
 
-      // console.log("Event details saved:", response.data);
-      alert("Changes saved successfully!");
-
+      alert("Event created successfully!");
       const data = response.data;
-      setLink(data.bookingUrl);
+      const url = data.bookingUrl;
+      setLink(url);
+
       if (onClose) onClose();
     } catch (error) {
       console.error("Failed to save event details:", error);

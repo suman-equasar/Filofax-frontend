@@ -11,6 +11,7 @@ const Time = ({
   title,
   hostName,
   hostEmail,
+  eventType,
   hostId,
   eventId,
 }) => {
@@ -29,6 +30,7 @@ const Time = ({
         title,
         hostName,
         hostEmail,
+        eventType,
         hostId, // <-- Make sure this is included!
       },
     });
@@ -82,29 +84,6 @@ const Time = ({
     }
     return slots;
   };
-
-  // vikrant code
-  // const generateTimeSlots = () => {
-  //   const slots = [];
-  //   let hour = 9;
-  //   let minute = 0;
-
-  //   while (hour < 17 || (hour === 17 && minute === 0)) {
-  //     const formattedHour = hour > 12 ? hour - 12 : hour;
-  //     const ampm = hour >= 12 ? "PM" : "AM";
-  //     const formattedMinute = minute.toString().padStart(2, "0");
-  //     slots.push(`${formattedHour}:${formattedMinute} ${ampm}`);
-
-  //     minute += 30;
-  //     if (minute === 60) {
-  //       hour += 1;
-  //       minute = 0;
-  //     }
-  //   }
-
-  //   return slots;
-  // };
-
   const formatDateWithDay = (dateStr) => {
     const [year, month, day] = dateStr.split("-").map(Number);
     const dateObj = new Date(year, month - 1, day);

@@ -21,13 +21,17 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
 
   const handleCopyLink = (e) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(event.path);
+    const urlToCopy = event.bookingUrl || event.path || "";
+    if (!urlToCopy) return alert("No link found to copy");
+    navigator.clipboard.writeText(urlToCopy);
     alert("Link copied to clipboard!");
   };
 
   const handleOpenLink = (e) => {
     e.stopPropagation();
-    window.open(event.path, "_blank");
+    const urlToOpen = event.bookingUrl || event.path || "";
+    if (!urlToOpen) return alert("No link found to Open");
+    window.open(event.bookingUrl, "_blank");
   };
 
   const handleToggle = (newState) => {
@@ -155,7 +159,7 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
                   <div className="text-xs text-gray-500 ml-6">English</div>
                 </button>
 
-                <button
+                {/* <button
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -165,9 +169,9 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Add Internal Note
-                </button>
+                </button> */}
 
-                <button
+                {/* <button
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -177,9 +181,9 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
                 >
                   <Lock className="h-4 w-4 mr-2" />
                   Make secret
-                </button>
+                </button> */}
 
-                <button
+                {/* <button
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -189,7 +193,7 @@ const EventCard = ({ event, onToggleActive, onClick, isSelected }) => {
                 >
                   <Clone className="h-4 w-4 mr-2" />
                   Clone
-                </button>
+                </button> */}
 
                 <button
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-red-500"

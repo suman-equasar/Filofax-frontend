@@ -1,16 +1,73 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, Clock, Search, LogOut } from "lucide-react";
+import { Calendar, Clock, Search, LogOut, User } from "lucide-react";
 import { FaLink } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, isMobile }) => {
   const location = useLocation();
+
+  // Select authMethod and user data from Redux
+  const authMethod = useSelector((state) => state.user.authMethod);
+  const userDetails = useSelector((state) => state.user.userDetails);
+  const googleData = useSelector((state) => state.user.googleData);
+  const microsoftData = useSelector((state) => state.user.microsoftData);
 
   // Check which route is active
   const isEventTypesActive = location.pathname === "/dashboard/event-types";
   const isMeetingsActive = location.pathname === "/dashboard/meetings";
   const isAvailabilityActive = location.pathname === "/dashboard/availability";
   const isUserProfileActive = location.pathname === "/dashboard/user-profile";
+
+  const extractProfileData = () => {
+    if (authMethod === "local" && userDetails) {
+      return {
+        name: userDetails.name || "User",
+        profileImageLink: userDetails.profileImageLink || null,
+      };
+    } else if (authMethod === "google" && googleData) {
+      return {
+        name: googleData.name || "Google User",
+        profileImageLink:
+          googleData.profileImageLink || googleData.picture || null,
+      };
+    } else if (authMethod === "microsoft" && microsoftData) {
+      return {
+        name: microsoftData.name || "Microsoft User",
+        profileImageLink: microsoftData.profileImageLink || null,
+      };
+    }
+    return {
+      name: "Guest User",
+      profileImageLink: null,
+    };
+  };
+  const { name, profileImageLink } = extractProfileData();
+
+  // 🔥 HIGHLIGHTED: Enhanced image rendering with proper fallback
+  const renderProfileImage = () => {
+    if (profileImageLink) {
+      return (
+        <img
+          src={profileImageLink}
+          alt="Profile"
+          className="w-10 h-10 rounded-full object-cover"
+          onError={(e) => {
+            // Fallback if image fails to load
+            e.target.style.display = "none";
+            e.target.nextSibling.style.display = "flex";
+          }}
+        />
+      );
+    } else {
+      // Show icon when no image link is available
+      return (
+        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <User className="h-5 w-5 text-gray-500" />
+        </div>
+      );
+    }
+  };
 
   return (
     <>
@@ -30,20 +87,22 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, isMobile }) => {
                 : "text-[#000000]"
             }`}
           >
-            <img
-              src="https://cdn.britannica.com/54/264854-050-1F82F2BF/indian-actor-hrithik-roshan-european-premiere-kites-odeon-west-may-18-2010-london-england.jpg"
-              alt="Profile"
-              className="w-10 h-10 rounded-full"
-            />
+            {/* 🔥 HIGHLIGHTED: Updated image section */}
+            <div className="relative">
+              {renderProfileImage()}
+              {/* Hidden fallback div that shows when image fails */}
+              <div
+                className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center absolute top-0 left-0"
+                style={{ display: "none" }}
+              >
+                <User className="h-5 w-5 text-gray-500" />
+              </div>
+            </div>
+
             <div className="ml-3">
-              <h3 className="font-normal font-lexend text-sm">Jason Jay</h3>
+              <h3 className="font-normal font-lexend text-sm">{name}</h3>
             </div>
           </Link>
-
-          {/* Search Button */}
-          {/* <button className="ml-auto p-1.5 rounded-full bg-[#CDF529]">
-            <Search className="h-4 w-4 text-gray-500" />
-          </button> */}
         </div>
 
         {/* Navigation */}
@@ -111,7 +170,6 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, isMobile }) => {
               >
                 <div className="mr-3 w-6">
                   <LogOut className="h-5 w-5 text-gray-400" />
-                  
                 </div>
                 Logout
               </Link>

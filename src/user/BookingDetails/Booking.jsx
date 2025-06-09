@@ -55,8 +55,9 @@ const Booking = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="relative w-full max-w-5xl">
         <div
-          className={`bg-white rounded-lg shadow-lg overflow-hidden w-full flex flex-col md:flex-row  transition-transform duration-300 ${drawerOpen ? "md:-translate-x-40" : ""
-            }`}
+          className={`bg-white rounded-lg shadow-lg overflow-hidden w-full flex flex-col md:flex-row  transition-transform duration-300 ${
+            drawerOpen ? "md:-translate-x-40" : ""
+          }`}
         >
           {/* Left Panel */}
           <div className="w-full md:w-1/2 p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
@@ -133,6 +134,7 @@ const Booking = () => {
             eventId={eventId}
             hostName={event.hostName}
             hostEmail={event.hostEmail}
+            eventType={event.eventType}
             hostId={event.userId} // This must not be undefined
           />
         )}

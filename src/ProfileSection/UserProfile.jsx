@@ -20,7 +20,7 @@ export default function UserProfile() {
   const { authMethod } = useSelector((state) => state.user);
   const userDetails = useSelector((state) => state.user.userDetails);
   const googleData = useSelector((state) => state.user.googleData);
-  const microsoftData = useSelector((state) => state.microsoftData);
+  // const microsoftData = useSelector((state) => state.user.microsoftData);
 
   const [currentTime, setCurrentTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -81,6 +81,7 @@ export default function UserProfile() {
     }
 
     // optional
+    /*
     if (authMethod === "microsoft" && microsoftData) {
       return {
         name: microsoftData.name || "",
@@ -91,7 +92,7 @@ export default function UserProfile() {
         timezone: "Asia/Kolkata",
         profileImageLink: microsoftData.profileImageLink || null,
       };
-    }
+    }*/
 
     return {
       name: "",
@@ -116,7 +117,8 @@ export default function UserProfile() {
       setPreviewImage(newProfileData.profileImageLink);
     }
     console.log("Profile Data changed: ", profileData);
-  }, [authMethod, googleData, userDetails, microsoftData]);
+    // }, [authMethod, googleData, userDetails, microsoftData]);
+  }, [authMethod, googleData, userDetails]);
 
   useEffect(() => {
     updateCurrentTime();
@@ -130,7 +132,7 @@ export default function UserProfile() {
     authMethod,
     userDetails,
     googleData,
-    microsoftData,
+    // microsoftData,
   ]);
 
   const updateCurrentTime = () => {

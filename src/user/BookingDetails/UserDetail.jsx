@@ -16,22 +16,28 @@ const UserDetail = () => {
     location,
     eventId,
     hostName,
+    eventType,
     hostEmail,
     hostId,
   } = locationObj.state || {};
 
   console.log("host id in user detail :", hostId);
   console.log("event id in user detail :", eventId);
+
+  const [guestEmails, setGuestEmails] = useState([]);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestError, setGuestError] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    notes:""
+
+    notes: "",
   });
 
   const [errors, setErrors] = useState({
     name: "",
     email: "",
-
   });
 
   const validateName = (name) => {
@@ -87,9 +93,10 @@ const UserDetail = () => {
         hostId,
         hostName,
         hostEmail,
+        eventType,
         attendeeName: formData.name,
         attendeeEmail: formData.email,
-        attendee_notes:formData.notes,
+        attendee_notes: formData.notes,
       };
 
       const bookingUrl = import.meta.env.VITE_BOOKING_URL;
@@ -107,9 +114,10 @@ const UserDetail = () => {
             hostEmail,
             hostId,
             location,
+            eventType,
             attendeeName: formData.name,
             attendeeEmail: formData.email,
-            attendeeNotes:formData.notes
+            attendeeNotes: formData.notes,
           },
         },
       });
@@ -118,6 +126,34 @@ const UserDetail = () => {
     }
 
     // If valid, navigate
+  };
+
+  const handleGuestKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === "," || e.key === " ") {
+      e.preventDefault();
+      const email = guestEmail.trim().replace(/,$/, "");
+
+      if (!email) return;
+
+      const isValid = validateEmail(email);
+      const isDuplicate = guestEmails.includes(email);
+
+      if (!isValid) {
+        setGuestError("Please enter a valid email.");
+      } else if (isDuplicate) {
+        setGuestError("This email has already been added.");
+      } else if (guestEmails.length >= 10) {
+        setGuestError("You can only add up to 10 guest emails.");
+      } else {
+        setGuestEmails((prev) => [...prev, email]);
+        setGuestEmail("");
+        setGuestError("");
+      }
+    }
+  };
+
+  const removeGuestEmail = (email) => {
+    setGuestEmails((prev) => prev.filter((e) => e !== email));
   };
 
   return (
@@ -180,9 +216,11 @@ const UserDetail = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full border ${errors.name ? "border-red-500" : "border-gray-300"
-                  } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${errors.name ? "focus:ring-red-400" : "focus:ring-blue-500"
-                  }`}
+                className={`w-full border ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${
+                  errors.name ? "focus:ring-red-400" : "focus:ring-blue-500"
+                }`}
                 placeholder="Enter your name"
               />
               {errors.name && (
@@ -200,9 +238,11 @@ const UserDetail = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full border ${errors.email ? "border-red-500" : "border-gray-300"
-                  } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${errors.email ? "focus:ring-red-400" : "focus:ring-blue-500"
-                  }`}
+                className={`w-full border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                } rounded-md px-4 py-2 focus:outline-none focus:ring-2 ${
+                  errors.email ? "focus:ring-red-400" : "focus:ring-blue-500"
+                }`}
                 placeholder="Enter your email"
               />
               {errors.email && (
@@ -211,21 +251,67 @@ const UserDetail = () => {
             </div>
 
             {/* Add Guests */}
-            <div>
+
+            {/* <div>
               <button
                 type="button"
                 className="px-4 py-2 border border-blue-600 text-blue-600 rounded-full hover:bg-blue-50 transition"
               >
                 Add Guests
               </button>
-            </div>
+            </div> */}
+
+            {eventType === "One-on-Many" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Guest Email(s)
+                </label>
+                <div className="flex flex-wrap gap-2 border border-gray-300 rounded-md p-2 focus-within:ring-2 focus-within:ring-blue-500">
+                  {guestEmails.map((email) => (
+                    <div
+                      key={email}
+                      className="flex items-center bg-blue-100 text-blue-800 text-sm rounded-full px-3 py-1"
+                    >
+                      {email}
+                      <button
+                        type="button"
+                        onClick={() => removeGuestEmail(email)}
+                        className="ml-2 text-blue-700 hover:text-red-500"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <input
+                    type="email"
+                    placeholder="Enter guest email"
+                    value={guestEmail}
+                    onChange={(e) => {
+                      setGuestEmail(e.target.value);
+                      setGuestError("");
+                    }}
+                    onKeyDown={handleGuestKeyDown}
+                    className="flex-grow focus:outline-none px-2 py-1 text-sm"
+                  />
+                </div>
+                {guestError && (
+                  <p className="text-sm text-red-500 mt-1">{guestError}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Notify up to 10 additional guests of the scheduled event.
+                </p>
+              </div>
+            )}
 
             {/* Additional Info */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Please share anything that will help prepare for our meeting.
               </label>
-              <textarea name="notes" value={formData.notes} onChange={handleChange}
+              <textarea
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
                 rows="4"
                 className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Additional details"
