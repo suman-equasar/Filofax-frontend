@@ -113,8 +113,11 @@ export default function UserProfile() {
     const newProfileData = extractProfileData();
     setProfileData(newProfileData);
 
+    // Set preview image if user has one
     if (newProfileData.profileImageLink) {
       setPreviewImage(newProfileData.profileImageLink);
+    } else {
+      setPreviewImage("/api/placeholder/80/80");
     }
     console.log("Profile Data changed: ", profileData);
     // }, [authMethod, googleData, userDetails, microsoftData]);
@@ -187,8 +190,16 @@ export default function UserProfile() {
       // Create FormData for file upload
       const formData = new FormData();
 
-      Object.keys(profileData).forEach((key) => {
-        formData.append(key, profileData[key]);
+      // Object.keys(profileData).forEach((key) => {
+      //   formData.append(key, profileData[key]);
+      // });
+
+      Object.entries(profileData).forEach(([key, value]) => {
+        if (key === "profileImageLink" && value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, value);
+        }
       });
 
       const formattedDate = formatDateByPattern(
@@ -208,7 +219,6 @@ export default function UserProfile() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       );
@@ -227,12 +237,30 @@ export default function UserProfile() {
         };
 
         // If there's a new profile image, include it
+
+        /*
         if (previewImage && previewImage !== "/api/placeholder/80/80") {
           updatedData.profileImageLink = previewImage;
+        }
+        */
+
+        if (
+          profileData.profileImageLink &&
+          typeof profileData.profileImageLink === "object"
+        ) {
+          updatedData.profileImageLink = `${
+            import.meta.env.VITE_PROFILE_AUTH_URL
+          }/uploads/${profileData.profileImageLink.name}`;
         }
 
         // Update Redux state with the new profile data
         // dispatch(updateUserProfile(updatedData)); // vikrant code
+        dispatch(
+          updateUserProfile({
+            ...updatedData,
+            profileImageLink: response.data.data.profileImageLink,
+          })
+        );
 
         if (authMethod === "local") {
           dispatch(
@@ -468,7 +496,7 @@ export default function UserProfile() {
             disabled={isLoading}
             className="px-4 py-2 bg-[#E1F395] text-black rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-blue-300"
           >
-            {isLoading ? "Saving..." : "Save Changes"}
+            {isLoading ? "Updating..." : "Save Changes"}
           </button>
         </div>
         {showDeleteConfirm && (

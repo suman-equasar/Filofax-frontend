@@ -8,7 +8,11 @@ import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 import Cookies from "js-cookie";
 
-const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
+const LocationSelector = ({
+  onLocationChange,
+  initialLocation = null,
+  hostEmail,
+}) => {
   const [showOptions, setShowOptions] = useState(false);
   const [location, setLocation] = useState(initialLocation);
   const [loading, setLoading] = useState(false);
@@ -79,28 +83,70 @@ const LocationSelector = ({ onLocationChange, initialLocation = null }) => {
       const url = `${import.meta.env.VITE_ZOOM_BASE_URL}/connect`;
       const headers = {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       };
 
-      const res = await axios.get(url, {
-        withCredentials: true,
-        headers,
-      });
-      const data = await res.data;
+      // Change from GET to POST and include email in body
+      const res = await axios.post(
+        url,
+        {
+          email: hostEmail, // Pass the host email from props
+        },
+        {
+          withCredentials: true,
+          headers,
+        }
+      );
+
+      const data = res.data;
+
       const zoom_access_token = data.zoom_access_token;
       console.log("Zoom cookies", zoom_access_token);
-
       Cookies.set("zoom_access_token", zoom_access_token);
+
       if (data.success) {
-        toast.success("Zoom connected successfully!");
-        // alert("Zoom connected successfully!");
-        return true;
+        if (data.alreadyConnected) {
+          toast.info("Already connected to Zoom!");
+          return true;
+        } else {
+          // Open the redirectUrl in a popup for OAuth
+          const popup = window.open(
+            data.redirectUrl,
+            "_blank",
+            "width=500,height=600"
+          );
+          if (!popup) {
+            toast.error("Popup blocked. Please allow popups for this site.");
+            return false;
+          }
+
+          toast.info("Waiting for Zoom authentication to complete...");
+
+          // Wait for popup to close and check for zoom token
+          return new Promise((resolve) => {
+            const interval = setInterval(() => {
+              if (popup.closed) {
+                clearInterval(interval);
+                // Check if zoom token is now available in cookies
+                const newZoomToken = Cookies.get("zoom_access_token");
+                if (newZoomToken) {
+                  toast.success("Zoom connected successfully!");
+                  resolve(true);
+                } else {
+                  toast.error("Zoom connection failed. Please try again.");
+                  resolve(false);
+                }
+              }
+            }, 1000);
+          });
+        }
       } else {
         toast.error("Zoom connection failed");
         return false;
       }
     } catch (err) {
       console.error("Zoom auth error:", err);
-      toast.error("Zoom connextion failed. Please try again to connect");
+      toast.error("Zoom connection failed. Please try again.");
       return false;
     } finally {
       setLoading(false);

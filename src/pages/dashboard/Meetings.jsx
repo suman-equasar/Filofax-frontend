@@ -6,6 +6,7 @@ import { extractTokenFromCookie } from "../../utils/auth";
 import axios from "axios";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import VectorIcon from "../../assets/Vector.svg";
 
 // helper function to decode the JWT and extract the userId from token
 const getUserIdFromToken = () => {
@@ -230,7 +231,8 @@ export default function Meetings() {
             onClick={handleExportZip}
             className="flex items-center px-4 py-1 border border-gray-300 rounded text-sm hover:bg-gray-100"
           >
-            <Calendar className="w-4 h-4 mr-2" />
+            {/* <Calendar className="w-4 h-4 mr-2" /> */}
+            <img src={VectorIcon} alt="Export" className="w-4 h-4 mr-2" />
             Export
           </button>
         </div>

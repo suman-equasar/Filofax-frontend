@@ -27,9 +27,12 @@ function App() {
         <Route path="/booking/:eventId" element={<Booking />} />
         <Route path="/user-detail" element={<UserDetail />} />
         <Route path="/user-schedule" element={<Schedule />} />
-        {/* Google Callback route for the dashboard redirection */}
 
+        {/* Google Callback route for the dashboard redirection */}
         <Route path="/google/callback" element={<GoogleCallback />} />
+
+        {/* Zoom Callback route for handling Zoom marketplace redirections */}
+        {/* <Route path="/auth/zoom/callback" element={<ZoomCallback />} /> */}
 
         {/* Dashboard Routes with Layout */}
         <Route

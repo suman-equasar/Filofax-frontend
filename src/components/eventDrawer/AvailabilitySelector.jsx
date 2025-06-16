@@ -22,12 +22,15 @@ const dayMap = {
   Sat: "Saturday",
 };
 
-const AvailabilitySelector = ({ setAvailability }) => {
+const AvailabilitySelector = ({ setAvailability, initialAvailability }) => {
   const [isExpanded, setIsExpanded] = useState(false); // Dropdown is collapsed by default
   const [isEditing, setIsEditing] = useState(false);
-  const [weeklyHours, setWeeklyHours] = useState({
-    ...defaultHours,
-    // M: [{ start: "09:00am", end: "05:00pm" }],
+
+  const [weeklyHours, setWeeklyHours] = useState(() => {
+    if (initialAvailability && Object.keys(initialAvailability).length > 0) {
+      return initialAvailability;
+    }
+    return { ...defaultHours };
   });
 
   // const toggleExpand = () => setIsExpanded(!isExpanded);
@@ -38,76 +41,75 @@ const AvailabilitySelector = ({ setAvailability }) => {
     navigate("/availability"); // Navigate to the Availability page
   };
 
-  // const handleTimeChange = (day, index, type, value) => {
-  //   const updated = { ...weeklyHours };
-  //   if (updated[day]) {
-  //     updated[day][index][type] = value;
-  //     setWeeklyHours(updated);
-  //   }
-  // };
-
   const handleTimeChange = (day, index, type, value) => {
-    setWeeklyHours((prev) => {
-      const daySlots = prev[day] ? [...prev[day]] : [];
-      daySlots[index] = { ...daySlots[index], [type]: value };
-      return { ...prev, [day]: daySlots };
-    });
+    const updated = { ...weeklyHours };
+    if (updated[day]) {
+      updated[day][index][type] = value;
+      setWeeklyHours(updated);
+    }
   };
 
-  // const handleAddSlot = (day) => {
-  //   const updated = { ...weeklyHours };
-  //   if (!updated[day]) {
-  //     updated[day] = [];
-  //   }
-  //   updated[day].push({ start: "09:00am", end: "05:00pm" });
-  //   setWeeklyHours(updated);
+  // const handleTimeChange = (day, index, type, value) => {
+  //   setWeeklyHours((prev) => {
+  //     const daySlots = prev[day] ? [...prev[day]] : [];
+  //     daySlots[index] = { ...daySlots[index], [type]: value };
+  //     return { ...prev, [day]: daySlots };
+  //   });
   // };
 
   const handleAddSlot = (day) => {
-    setWeeklyHours((prev) => {
-      const daySlots = prev[day] ? [...prev[day]] : [];
-      daySlots.push({ start: "09:00am", end: "05:00pm" });
-      return { ...prev, [day]: daySlots };
-    });
+    const updated = { ...weeklyHours };
+    if (!updated[day]) {
+      updated[day] = [];
+    }
+    updated[day].push({ start: "09:00am", end: "05:00pm" });
+    setWeeklyHours(updated);
   };
 
-  // const handleRemoveSlot = (day, index) => {
-  //   const updated = { ...weeklyHours };
-  //   if (updated[day].length === 1) {
-  //     updated[day] = null;
-  //   } else {
-  //     updated[day].splice(index, 1);
-  //   }
-  //   setWeeklyHours(updated);
+  // const handleAddSlot = (day) => {
+  //   setWeeklyHours((prev) => {
+  //     const daySlots = prev[day] ? [...prev[day]] : [];
+  //     daySlots.push({ start: "09:00am", end: "05:00pm" });
+  //     return { ...prev, [day]: daySlots };
+  //   });
   // };
 
   const handleRemoveSlot = (day, index) => {
-    setWeeklyHours((prev) => {
-      const daySlots = prev[day] ? [...prev[day]] : [];
-      if (daySlots.length === 1) {
-        return { ...prev, [day]: null };
-      } else {
-        daySlots.splice(index, 1);
-        return { ...prev, [day]: daySlots };
-      }
-    });
+    const updated = { ...weeklyHours };
+    if (updated[day].length === 1) {
+      updated[day] = null;
+    } else {
+      updated[day].splice(index, 1);
+    }
+    setWeeklyHours(updated);
   };
+
+  // const handleRemoveSlot = (day, index) => {
+  //   setWeeklyHours((prev) => {
+  //     const daySlots = prev[day] ? [...prev[day]] : [];
+  //     if (daySlots.length === 1) {
+  //       return { ...prev, [day]: null };
+  //     } else {
+  //       daySlots.splice(index, 1);
+  //       return { ...prev, [day]: daySlots };
+  //     }
+  //   });
+  // };
 
   useEffect(() => {
     setAvailability(weeklyHours);
   }, [weeklyHours, setAvailability]);
 
-  // useEffect(() => {
-  //   // Normalize keys: merge "M" into "Mon" if "M" exists
-  //   if (availability_time) {
-  //     const normalizedHours = { ...availability_time };
-  //     if (normalizedHours.M && !normalizedHours.Mon) {
-  //       normalizedHours.Mon = normalizedHours.M;
-  //       delete normalizedHours.M;
-  //     }
-  //     setWeeklyHours(normalizedHours);
-  //   }
-  // }, [availability_time]);
+  useEffect(() => {
+    if (!initialAvailability || Object.keys(initialAvailability).length === 0) {
+      const defaultAvailability = { ...defaultHours };
+      setWeeklyHours(defaultAvailability);
+      setAvailability(defaultAvailability);
+    } else {
+      setWeeklyHours(initialAvailability);
+      setAvailability(initialAvailability);
+    }
+  }, [initialAvailability, setAvailability]);
 
   return (
     <div className="border-b border-gray-200 py-4">
@@ -239,18 +241,20 @@ const AvailabilitySelector = ({ setAvailability }) => {
           </div>
 
           {/* Timezone */}
-          <div className="mt-4 text-sm text-blue-600 cursor-pointer">
-            India Standard Time ▼
+          {/* <div className="mt-4 text-sm text-blue-600 cursor-pointer"> */}
+          <div className="mt-4 text-sm text-blue-600">
+            {/* India Standard Time ▼ */}
+            India Standard Time
           </div>
 
           {/* Date-specific hours */}
-          <div className="mt-4">
+          {/* <div className="mt-4">
             <p className="text-sm text-gray-700">Date-specific hours</p>
             <button className="mt-2 text-blue-600 rounded px-3 py-1 text-sm flex items-center gap-1">
               <Plus size={14} />
               Hours
             </button>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

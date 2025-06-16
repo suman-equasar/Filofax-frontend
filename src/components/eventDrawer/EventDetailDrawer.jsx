@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import DurationSelector from "./DurationSelector";
 import LocationSelector from "./LocationSelector";
-import AvailibilitySelector from "./AvailibilitySelector";
 import axios from "axios";
 import { extractTokenFromCookie } from "../../utils/auth";
 import { useSelector } from "react-redux";
+import AvailabilitySelector from "./AvailabilitySelector";
 
 const backdropVariant = {
   hidden: { opacity: 0 },
@@ -177,8 +177,12 @@ const EventDetailDrawer = ({ event, onClose }) => {
                 <LocationSelector
                   initialLocation={location}
                   onLocationChange={handleLocationChange}
+                  hostEmail={hostEmail}
                 />
-                <AvailibilitySelector setAvailability={setAvailability} />
+                <AvailabilitySelector
+                  setAvailability={setAvailability}
+                  initialAvailability={event?.availability_time}
+                />
                 <div className="py-4">
                   <p className="text-sm font-medium text-black mb-2">Host</p>
                   <div className="border border-gray-200 rounded-md px-3 py-2">
